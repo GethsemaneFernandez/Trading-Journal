@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>React Test</title>
+<style>
+body { background: #050505; color: #10b981; font-family: monospace; padding: 20px; }
+.success { color: #10b981; }
+.error { color: #f43f5e; }
+</style>
+</head>
+<body>
+<h1>Basic Journal - Diagnostic Test</h1>
+<div id="test-results"></div>
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="babel_min.js"></script>
+
+<script>
+// Test 1: Check if React loaded
+const results = document.getElementById('test-results');
+
+function log(msg, success = true) {
+  const p = document.createElement('p');
+  p.className = success ? 'success' : 'error';
+  p.textContent = (success ? '✅ ' : '❌ ') + msg;
+  results.appendChild(p);
+}
+
+if (typeof React !== 'undefined') {
+  log('React loaded (version ' + React.version + ')');
+} else {
+  log('React NOT loaded', false);
+}
+
+if (typeof ReactDOM !== 'undefined') {
+  log('ReactDOM loaded');
+} else {
+  log('ReactDOM NOT loaded', false);
+}
+
+if (typeof Babel !== 'undefined') {
+  log('Babel loaded');
+} else {
+  log('Babel NOT loaded', false);
+}
+</script>
+
+<script type="text/babel">
+// Test 2: Check if Babel transpiles JSX
+const TestComponent = () => {
+  return <div style={{color: '#10b981', marginTop: '20px'}}>
+    <h2>✅ JSX Transpilation Working!</h2>
+    <p>If you see this green text, Babel is working correctly.</p>
+  </div>;
+};
+
+const rootEl = document.getElementById('root');
+if (rootEl) {
+  ReactDOM.createRoot(rootEl).render(<TestComponent />);
+}
+</script>
+
+</body>
+</html>
