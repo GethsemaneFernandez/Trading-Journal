@@ -581,13 +581,12 @@
       /* NAVBAR */
       h('nav', { className: "nav-bar", style: { height: 'var(--nav-h)', flexShrink: 0, position: 'relative', zIndex: 50, display: 'flex', alignItems: 'center', padding: '0 var(--pad)', gap: 4 } },
         h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, marginRight: 6 } },
-          h('svg', { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none" },
-            h('defs', null, h('linearGradient', { id: "bj151logo", x1: "0", y1: "0", x2: "24", y2: "24" }, h('stop', { stopColor: "#c7e2f7" }), h('stop', { offset: "1", stopColor: "#3b82f6" }))),
-            h('polygon', { points: "12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5", stroke: "url(#bj151logo)", strokeWidth: "1.5", fill: "rgba(16,185,129,.07)", style: { filter: 'drop-shadow(0 0 5px rgba(16,185,129,.5))' } }),
-            h('line', { x1: "12", y1: "2", x2: "12", y2: "22", stroke: "url(#bj151logo)", strokeWidth: "1" }),
-            h('line', { x1: "2", y1: "8.5", x2: "22", y2: "8.5", stroke: "url(#bj151logo)", strokeWidth: "1" })
+          h('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none" },
+            h('defs', null, h('linearGradient', { id: "bjLogoGrad", x1: "0", y1: "0", x2: "24", y2: "24" }, h('stop', { stopColor: "#c7e2f7" }), h('stop', { offset: "1", stopColor: "#3b82f6" }))),
+            h('path', { d: "M12 2L2 7L2 17L12 22L22 17L22 7L12 2Z", stroke: "url(#bjLogoGrad)", strokeWidth: "2", strokeLinejoin: "round", fill: "rgba(59,130,246,0.1)" }),
+            h('path', { d: "M12 22V12M12 12L22 7M12 12L2 7", stroke: "url(#bjLogoGrad)", strokeWidth: "1.5", strokeLinejoin: "round" })
           ),
-          h('div', null, h('div', { className: "tp", style: { fontSize: 10, fontWeight: 800, letterSpacing: '.12em', lineHeight: 1, textShadow: isDark ? '0 0 8px rgba(16,185,129,.4)' : 'none' } }, "BASIC JOURNAL"), h('div', { className: "mono tf", style: { fontSize: 6, letterSpacing: '.08em', marginTop: 1 } }, "V1.5.1-MASSIVE"))
+          h('div', null, h('div', { className: "tp", style: { fontSize: 10.5, fontWeight: 900, letterSpacing: '.14em', lineHeight: 1, textShadow: isDark ? '0 0 12px rgba(59,130,246,0.3)' : 'none' } }, "BASIC JOURNAL"), h('div', { className: "mono tf", style: { fontSize: 6.5, letterSpacing: '.1em', marginTop: 1, opacity: 0.8 } }, "V1.5.1-MASSIVE"))
         ),
         [{ v: 'dashboard', l: 'Dashboard' }, { v: 'ledger', l: 'Ledger' }, { v: 'wallet', l: 'Wallet' }, { v: 'studylab', l: '📐 Study Lab' }, { v: 'sandbox', l: 'Predictor' }].map(function (item) {
           return h('button', { key: item.v, id: 'nav-' + item.v, onClick: function () { setView(item.v); }, className: 'nl' + (view === item.v ? ' on' : ''), style: item.v === 'studylab' ? { color: view === 'studylab' ? '#a78bfa' : undefined } : undefined }, item.l);

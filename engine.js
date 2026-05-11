@@ -85,7 +85,10 @@
           if (isUSD(ex) || isCrypto(ex)) {
             if (cash.usd >= nativeCost) cash.usd -= nativeCost;
             else { var delta = nativeCost - cash.usd; cash.usd = 0; cash.php -= delta * rate; }
-          } else cash.php -= phpCost;
+          } else {
+            if (cash.php >= nativeCost) cash.php -= nativeCost;
+            else { var delta = nativeCost - cash.php; cash.php = 0; cash.usd -= delta / rate; }
+          }
         }
         if (!positions[tk]) {
           positions[tk] = { qty: 0, totalCostNative: 0, initialCostNative: 0, exchange: ex, ticker: tk, lots: [] };

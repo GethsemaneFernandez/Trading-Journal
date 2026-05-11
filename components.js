@@ -471,8 +471,11 @@
     }
 
     var port = props.port || { cashPHP: 0, cashUSD: 0 };
-    var available = E.isUSD(ex) || E.isForex(ex) || E.isCrypto(ex) ? port.cashUSD : port.cashPHP;
-    var isInsufficient = side === 'BUY' && !isMock && finalCostNative > available;
+    var isUsdMkt = E.isUSD(ex) || E.isForex(ex) || E.isCrypto(ex);
+    var availableNative = isUsdMkt ? port.cashUSD : port.cashPHP;
+    var availableOther = isUsdMkt ? (port.cashPHP / fxRate) : (port.cashUSD * fxRate);
+    var totalBuyingPower = availableNative + availableOther;
+    var isInsufficient = side === 'BUY' && !isMock && finalCostNative > totalBuyingPower;
     var canExec = !!tk && parseFloat(px) > 0 && parseFloat(qty) > 0 && !overSell && !isInsufficient;
 
     return h('div', { className: "panel", style: { padding: 'var(--pad)', display: 'flex', flexDirection: 'column', gap: 'var(--gap)', flexShrink: 0 } },
@@ -568,7 +571,7 @@
       ),
       isInsufficient && h('div', { className: "warn-b", style: { marginTop: 8 } },
         h(IcAlert),
-        h('span', { style: { fontSize: 9.5, color: '#5a6472', fontWeight: 700 } }, "INSUFFICIENT FUNDS: Need " + sym + f2(finalCostNative - available) + " more")
+        h('span', { style: { fontSize: 9.5, color: '#5a6472', fontWeight: 700 } }, "INSUFFICIENT FUNDS: Need " + sym + f2(finalCostNative - totalBuyingPower) + " more")
       ),
       manualPxLock && h('div', { style: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 8.5, color: '#f59e0b' } },
         h(IcLock), " Manual price — auto-fetch paused.",
