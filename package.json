@@ -1,0 +1,11 @@
+{
+  "name": "trading-journal-optimized",
+  "version": "1.5.1",
+  "description": "Optimized Trading Journal for GitHub and Vercel Hosting",
+  "scripts": {
+    "start": "python3 -m http.server 8000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

@@ -191,12 +191,12 @@
     }, []);
     useEffect(function () { if (open && sRef.current) sRef.current.focus(); }, [open]);
 
-    var baseList = forceList || tickers || [];
+    var baseList = (forceList === true) ? (tickers || []) : (forceList || tickers || []);
     var qUp = query.toUpperCase().trim();
     var filtered = useMemo(function () {
       return qUp ? baseList.filter(function (t) { return t.toUpperCase().includes(qUp); }) : baseList;
     }, [baseList, qUp]);
-    var isNew = !forceList && qUp && !baseList.map(function (t) { return t.toUpperCase(); }).includes(qUp);
+    var isNew = (forceList !== true) && qUp && !baseList.map(function (t) { return t.toUpperCase(); }).includes(qUp);
 
     function pick(tk) { onChange(tk); setOpen(false); setQuery(''); }
     function handleAdd() { var tk = qUp; if (!tk) return; onAdd(exchange, tk); pick(tk); }
