@@ -488,12 +488,13 @@
       if (!all.length) { addToast('No positions to refresh', 'warn'); return; }
       setRefreshing(true);
       if(E.fetchPrices) {
-          E.fetchPrices(all, useIBKR).then(function (res) {
+          E.fetchPrices(all).then(function (res) {
             setRefreshing(false);
             if (!res) { addToast('Price fetch failed — Manual Mode', 'err'); return; }
             setMktPx(function (prev) { return Object.assign({}, prev, res.updated); });
-            var source = useIBKR ? 'NASDAQ' : 'Yahoo/Phisix';
-            if (!res.pseFailed && !res.globalFailed) addToast('✓ Prices updated via ' + source, 'ok');
+            if (res.updated['USDPHP']) setFxRate(res.updated['USDPHP']);
+            var n = Object.keys(res.updated).length;
+            if (!res.pseFailed && !res.globalFailed) addToast('✓ ' + n + ' Prices updated via Yahoo', 'ok');
             else addToast('Sync issues detected', 'warn');
           }).catch(function (err) { setRefreshing(false); addToast('Price fetch failed', 'err'); });
       } else {
@@ -603,6 +604,12 @@
           h('button', { id: "settings-toggle", onClick: function () { setShowSettings(true); }, className: "ic" }, h(C.IcSettings)),
           h('button', { id: "priv-toggle", onClick: function () { setPriv(function (p) { return !p; }); }, className: 'ic' + (priv ? ' on' : '') }, priv ? h(C.IcEyeOff) : h(C.IcEye)),
           h('button', { id: "refresh-btn", onClick: doRefresh, className: 'refresh-btn' + (refreshing ? ' loading' : ''), style: { fontFamily: 'JetBrains Mono,monospace', fontSize: 8, padding: '2px 8px', borderRadius: '.4rem', cursor: 'pointer', transition: 'all .18s', background: isDark ? 'rgba(59,130,246,.09)' : 'rgba(59,130,246,.07)', border: isDark ? '1px solid rgba(59,130,246,.22)' : '1px solid rgba(59,130,246,.18)', color: isDark ? '#60a5fa' : '#1d4ed8', display: 'flex', alignItems: 'center', gap: 3 } }, h(C.IcRefresh), refreshing ? 'Syncing…' : 'Refresh'),
+          h('button', { id: "ibkr-toggle", onClick: function () { setUseIBKR(function (v) { return !v; }); },
+            className: useIBKR ? 'ibkr-on' : 'ibkr-off',
+            title: useIBKR ? 'Using NASDAQ Live Prices' : 'Using Yahoo/Phisix Prices',
+            style: { padding: '2px 8px', borderRadius: '.4rem', cursor: 'pointer', fontFamily: 'Geist Mono,monospace', fontSize: 8, fontWeight: 700, letterSpacing: '.04em', transition: 'all .18s', background: useIBKR ? (isDark ? 'rgba(110,231,183,.12)' : 'rgba(110,231,183,.09)') : (isDark ? 'rgba(148,163,184,.08)' : 'rgba(148,163,184,.06)'), border: useIBKR ? (isDark ? '1px solid rgba(110,231,183,.3)' : '1px solid rgba(110,231,183,.25)') : (isDark ? '1px solid rgba(148,163,184,.15)' : '1px solid rgba(148,163,184,.12)'), color: useIBKR ? (isDark ? '#6ee7b7' : '#065f46') : (isDark ? '#94a3b8' : '#64748b') } },
+            useIBKR ? 'NASDAQ' : 'Yahoo'),
+          h('button', { id: "usd-view-btn", onClick: function () { setUsdView(function (v) { return !v; }); }, className: 'usd-toggle' + (usdView ? ' on' : '') }, usdView ? '$ USD VIEW' : '₱ PHP VIEW'),
           h('button', { id: "reset-btn", onClick: resetAll, className: "ghost tm", style: { padding: '2px 8px', borderRadius: '.4rem', cursor: 'pointer', fontFamily: 'Inter,sans-serif', fontSize: 9, fontWeight: 500, transition: 'all .15s' } }, "Reset")
         )
       ),
