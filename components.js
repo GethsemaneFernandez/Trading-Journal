@@ -401,7 +401,7 @@
     var _mpLock = useState(false); var manualPxLock = _mpLock[0]; var setManualPxLock = _mpLock[1];
     var _mf = useState(''); var manualFee = _mf[0]; var setManualFee = _mf[1];
     var _mcp = useState(''); var manualCostValue = _mcp[0]; var setManualCostValue = _mcp[1];
-    var _mcc = useState('PHP'); var manualCostCurr = _mcc[0]; var setManualCostCurr = _mcc[1];
+    var _mcc = useState('₱'); var manualCostCurr = _mcc[0]; var setManualCostCurr = _mcc[1];
 
     useEffect(function () {
       if (!props.prefill) return;
@@ -433,7 +433,7 @@
     var netNative = side === 'BUY' ? gross + fee : gross - fee;
     var autoCostPHP = E.toPHP ? E.toPHP(netNative, ex, fxRate) : netNative;
 
-    var finalCostPHP = manualCostValue === '' ? autoCostPHP : (manualCostCurr === 'PHP' ? (parseFloat(manualCostValue) || 0) : ((parseFloat(manualCostValue) || 0) * fxRate));
+    var finalCostPHP = manualCostValue === '' ? autoCostPHP : (manualCostCurr === '₱' ? (parseFloat(manualCostValue) || 0) : ((parseFloat(manualCostValue) || 0) * fxRate));
     var finalCostNative = manualCostValue === '' ? netNative : (manualCostCurr === 'NATIVE' ? (parseFloat(manualCostValue) || 0) : ((parseFloat(manualCostValue) || 0) / fxRate));
 
     var sym = S(ex);
@@ -497,7 +497,7 @@
           h('option', { value: "FOREX" }, "FOREX ($)")
         )
       ),
-      h(F, { label: isF ? 'Pair  · e.g. EURUSD' : 'Ticker' + (E.isUSD(ex) || E.isCrypto(ex) ? ' · USD→PHP' : '') },
+      h(F, { label: isF ? 'Pair  · e.g. EURUSD' : 'Ticker' + (E.isUSD(ex) || E.isCrypto(ex) ? ' · USD→₱' : '') },
         h(TickerDropdown, {
           exchange: ex, tickers: tickerLists[ex] || [], value: tk,
           onChange: function (v) { setTk(v.toUpperCase().trim()); setManualPxLock(false); },
@@ -543,11 +543,11 @@
         !isF && h('span', { className: "tm", style: { fontSize: 'var(--fz-xs)', display: 'flex', alignItems: 'center', gap: 5 } },
           side === 'BUY' ? 'Final Cost:' : 'Net Proceeds:',
           h('div', { style: { position: 'relative', display: 'flex', alignItems: 'center' } },
-            h('button', { onClick: function () { setManualCostCurr(manualCostCurr === 'PHP' ? 'NATIVE' : 'PHP'); },
+            h('button', { onClick: function () { setManualCostCurr(manualCostCurr === '₱' ? 'NATIVE' : '₱'); },
               style: { background: 'rgba(128,128,128,.15)', border: 'none', borderRadius: '4px 0 0 4px', color: '#c7e2f7', fontSize: 9, padding: '4px 6px', cursor: 'pointer', fontWeight: 700 } },
-              manualCostCurr === 'PHP' ? '₱' : sym
+              manualCostCurr === '₱' ? '₱' : sym
             ),
-            h('input', { type: "number", step: "0.01", className: "inp", placeholder: f2(manualCostCurr === 'PHP' ? autoCostPHP : netNative), value: manualCostValue,
+            h('input', { type: "number", step: "0.01", className: "inp", placeholder: f2(manualCostCurr === '₱' ? autoCostPHP : netNative), value: manualCostValue,
               onChange: function (e) { setManualCostValue(e.target.value); },
               style: { width: 95, height: 22, fontSize: 10, fontWeight: 700, padding: '2px 5px', color: '#c7e2f7', borderColor: manualCostValue !== '' ? '#f59e0b' : undefined, borderRadius: '0 4px 4px 0' } })
           )

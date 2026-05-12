@@ -148,8 +148,8 @@
           h('div', { style: { fontSize: 9, fontWeight: 700, marginBottom: 8, color: '#f59e0b' } }, "SIMULATION RESULT:"),
           h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } },
             h('div', null, h('span', { className: "tf", style: { fontSize: 7.5 } }, "New Qty"), h('div', { className: "mono", style: { fontSize: 10, fontWeight: 700 } }, f0(simResult.qty))),
-            h('div', null, h('span', { className: "tf", style: { fontSize: 7.5 } }, "New Avg"), h('div', { className: "mono", style: { fontSize: 10, fontWeight: 700 } }, sym + f4(simResult.newAvgNative))),
-            h('div', null, h('span', { className: "tf", style: { fontSize: 7.5 } }, "BEV"), h('div', { className: "mono", style: { fontSize: 10, fontWeight: 700, color: '#f59e0b' } }, sym + f4(simResult.bev))),
+            h('div', null, h('span', { className: "tf", style: { fontSize: 7.5 } }, "New Avg"), h('div', { className: "mono", style: { fontSize: 10, fontWeight: 700 } }, sym + (E.isForex(ex) ? f5(simResult.newAvgNative) : f4(simResult.newAvgNative)))),
+            h('div', null, h('span', { className: "tf", style: { fontSize: 7.5 } }, "BEV"), h('div', { className: "mono", style: { fontSize: 10, fontWeight: 700, color: '#f59e0b' } }, sym + (E.isForex(ex) ? f5(simResult.bev) : f4(simResult.bev)))),
             h('div', null, h('span', { className: "tf", style: { fontSize: 7.5 } }, "Sim P&L"), h('div', { className: "mono", style: { fontSize: 10, fontWeight: 700, color: G(simResult.totalRealGLPHP) } }, "₱" + f2(simResult.totalRealGLPHP)))
           ),
           h('div', { style: { marginTop: 12, display: 'flex', gap: 8 } },
@@ -176,8 +176,8 @@
                 ),
                 h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 10 } },
                   h('div', { className: "mono", style: { fontSize: 9 } }, "Qty: " + f0(r.qty)),
-                  h('div', { className: "mono", style: { fontSize: 9 } }, "Avg: " + S(ex2) + f4(r.newAvgNative)),
-                  h('div', { className: "mono", style: { fontSize: 9, color: '#f59e0b' } }, "BEV: " + S(ex2) + f4(r.bev)),
+                  h('div', { className: "mono", style: { fontSize: 9 } }, "Avg: " + S(ex2) + (E.isForex(ex2) ? f5(r.newAvgNative) : f4(r.newAvgNative))),
+                  h('div', { className: "mono", style: { fontSize: 9, color: '#f59e0b' } }, "BEV: " + S(ex2) + (E.isForex(ex2) ? f5(r.bev) : f4(r.bev))),
                   h('div', { className: "mono", style: { fontSize: 9, color: G(r.totalRealGLPHP) } }, "P&L: ₱" + f2(r.totalRealGLPHP))
                 ),
                 h('textarea', { className: "inp", rows: 2, style: { fontSize: 9, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)' },

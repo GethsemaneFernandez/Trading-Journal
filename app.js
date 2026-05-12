@@ -61,15 +61,15 @@
       return allRaw.map(function (ev) {
         var out = Object.assign({}, ev);
         var ex = ev.exchange || 'PSE';
-        var sym = ex === 'PSE' ? '\u20b1' : '$';
+        var sym = ex === 'PSE' ? '₱' : '$';
         if (ev.kind === 'deposit') {
           out.cashBefore = runCash; runCash += ev.amount; out.cashAfter = runCash;
           out.flowAmt = ev.amount;
-          out.story = 'Cash in' + (ev.source ? ' via ' + ev.source : '') + ': \u20b1' + f2(ev.amount) + '. Available cash \u2192 \u20b1' + f2(runCash) + '.';
+          out.story = 'Cash in' + (ev.source ? ' via ' + ev.source : '') + ': ₱' + f2(ev.amount) + '. Available cash \u2192 ₱' + f2(runCash) + '.';
         } else if (ev.kind === 'withdraw') {
           out.cashBefore = runCash; runCash -= ev.amount; out.cashAfter = runCash;
           out.flowAmt = -ev.amount;
-          out.story = 'Withdrawal of \u20b1' + f2(ev.amount) + '. Remaining \u2192 \u20b1' + f2(runCash) + '.';
+          out.story = 'Withdrawal of ₱' + f2(ev.amount) + '. Remaining \u2192 ₱' + f2(runCash) + '.';
         } else if (ev.kind === 'buy') {
           var bFee = E.calcFee ? E.calcFee('BUY', ev.price, ev.qty, psiFee, ex) : 0;
           var bCost = E.toPHP ? E.toPHP(ev.price * ev.qty + bFee, ex, fxRate) : (ev.price * ev.qty + bFee);
@@ -77,7 +77,7 @@
           pos[ev.ticker].qty += ev.qty; pos[ev.ticker].totalCostPHP += bCost;
           out.cashBefore = runCash; runCash -= bCost; out.cashAfter = runCash;
           out.flowAmt = -bCost; out.costPHP = bCost; out.fee = E.toPHP ? E.toPHP(bFee, ex, fxRate) : bFee;
-          out.story = 'Bought ' + ev.ticker + ' \u00d7' + f0(ev.qty) + ' @ ' + sym + f4(ev.price) + ' = \u20b1' + f2(bCost) + ' (fee \u20b1' + f2(out.fee) + '). Cash left \u2192 \u20b1' + f2(runCash) + '.';
+          out.story = 'Bought ' + ev.ticker + ' \u00d7' + f0(ev.qty) + ' @ ' + sym + f4(ev.price) + ' = ₱' + f2(bCost) + ' (fee ₱' + f2(out.fee) + '). Cash left \u2192 ₱' + f2(runCash) + '.';
         } else if (ev.kind === 'sell') {
           var p = pos[ev.ticker];
           var sFee = E.calcFee ? E.calcFee('SELL', ev.price, ev.qty, psiFee, ex) : 0;
@@ -89,7 +89,7 @@
           out.cashBefore = runCash; runCash += proc; out.cashAfter = runCash;
           out.kind = pnl >= 0 ? 'profit' : 'loss';
           out.flowAmt = pnl; out.procPHP = proc; out.costBasis = basis; out.pnl = pnl;
-          out.story = 'Sold ' + ev.ticker + ' \u00d7' + f0(ev.qty) + ' @ ' + sym + f4(ev.price) + '. Cost basis \u20b1' + f2(basis) + ', proceeds \u20b1' + f2(proc) + '. ' + (pnl >= 0 ? '\u2191 Profit +\u20b1' + f2(pnl) : '\u2193 Loss \u2212\u20b1' + f2(Math.abs(pnl))) + '. Cash \u2192 \u20b1' + f2(runCash) + '.';
+          out.story = 'Sold ' + ev.ticker + ' \u00d7' + f0(ev.qty) + ' @ ' + sym + f4(ev.price) + '. Cost basis ₱' + f2(basis) + ', proceeds ₱' + f2(proc) + '. ' + (pnl >= 0 ? '↑ Profit +₱' + f2(pnl) : '↓ Loss −₱' + f2(Math.abs(pnl))) + '. Cash \u2192 ₱' + f2(runCash) + '.';
         }
         return out;
       });
@@ -207,7 +207,7 @@
           var netFlow = totalDep - totalWdw;
           var topPos = (enriched || []).slice().sort(function (a, b) { return b.mvPHP - a.mvPHP; }).slice(0, 3);
           var rows = [
-            ['Cash PHP', '₱' + f2(port.cashPHP || 0), '#94a3b8'],
+            ['Cash ₱', '₱' + f2(port.cashPHP || 0), '#94a3b8'],
             ['Total Deposited', '₱' + f2(totalDep), '#c7e2f7'],
             ['Total Withdrawn', '₱' + f2(totalWdw), '#5a6472'],
             ['Net Cash Flow', (netFlow >= 0 ? '+' : '') + '₱' + f2(netFlow), netFlow >= 0 ? '#c7e2f7' : '#f43f5e'],
@@ -463,7 +463,7 @@
     var _ws = useState('BPI'); var wSrc = _ws[0]; var setWSrc = _ws[1];
     var _wd = useState(function () { return new Date().toISOString().slice(0, 10); }); var wDate = _wd[0]; var setWDate = _wd[1];
     var _wn = useState(''); var wNote = _wn[0]; var setWNote = _wn[1];
-    var _wc = useState('PHP'); var wCurrency = _wc[0]; var setWCurrency = _wc[1];
+    var _wc = useState('₱'); var wCurrency = _wc[0]; var setWCurrency = _wc[1];
     function execWallet() {
       var amt = parseFloat(wAmt) || 0; if (!amt) { addToast('Enter valid amount', 'err'); return; }
       if (wType === 'WITHDRAW') {
@@ -559,7 +559,7 @@
             h('button', { className: "ic", onClick: function () { setShowFx(false); } }, h(C.IcX))
           ),
           h('div', { className: "divl", style: { height: 1 } }),
-          h(C.F, { label: "USD / PHP Rate (₱ per $1)" },
+          h(C.F, { label: "USD / ₱ Rate (₱ per $1)" },
             h('input', { type: "number", step: "0.5", min: "1", className: "inp", value: fxRate, onChange: function (e) { setFxRate(Math.max(1, parseFloat(e.target.value) || 60)); } })),
           h('button', { className: "btn btn-blue", onClick: function () { setShowFx(false); }, style: { width: '100%' } }, "Done")
         )
@@ -608,7 +608,7 @@
             title: useIBKR ? 'Using NASDAQ Live Prices' : 'Using Yahoo/Phisix Prices',
             style: { padding: '2px 8px', borderRadius: '.4rem', cursor: 'pointer', fontFamily: 'Geist Mono,monospace', fontSize: 8, fontWeight: 700, letterSpacing: '.04em', transition: 'all .18s', background: useIBKR ? (isDark ? 'rgba(110,231,183,.12)' : 'rgba(110,231,183,.09)') : (isDark ? 'rgba(148,163,184,.08)' : 'rgba(148,163,184,.06)'), border: useIBKR ? (isDark ? '1px solid rgba(110,231,183,.3)' : '1px solid rgba(110,231,183,.25)') : (isDark ? '1px solid rgba(148,163,184,.15)' : '1px solid rgba(148,163,184,.12)'), color: useIBKR ? (isDark ? '#6ee7b7' : '#065f46') : (isDark ? '#94a3b8' : '#64748b') } },
             useIBKR ? 'NASDAQ' : 'Yahoo'),
-          h('button', { id: "usd-view-btn", onClick: function () { setUsdView(function (v) { return !v; }); }, className: 'usd-toggle' + (usdView ? ' on' : '') }, usdView ? '$ USD VIEW' : '₱ PHP VIEW'),
+          h('button', { id: "usd-view-btn", onClick: function () { setUsdView(function (v) { return !v; }); }, className: 'usd-toggle' + (usdView ? ' on' : '') }, usdView ? '$ USD VIEW' : '₱ VIEW'),
           h('button', { id: "reset-btn", onClick: resetAll, className: "ghost tm", style: { padding: '2px 8px', borderRadius: '.4rem', cursor: 'pointer', fontFamily: 'Inter,sans-serif', fontSize: 9, fontWeight: 500, transition: 'all .15s' } }, "Reset")
         )
       ),
@@ -645,7 +645,7 @@
                 h('div', { className: "glass fu scroll", style: { flex: 1, overflow: 'auto', background: isDark ? 'rgba(0,0,0,0.2)' : '#fff' } },
                   h('table', { className: "tbl accounting-tbl", style: { width: '100%', borderCollapse: 'collapse' } },
                     h('thead', { style: { position: 'sticky', top: 0, zIndex: 10, background: isDark ? '#111' : '#f8fafc' } },
-                      h('tr', null, ['DATE/TIME', 'TYPE', 'EXCH', 'TICKER', 'PRICE', 'QTY', 'GROSS', 'FEE', 'NET PHP', 'MEMO'].map(function (hText) { return h('th', { key: hText, className: "th mono", style: { fontSize: 8, textAlign: 'left', padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.08)', color: '#64748b' } }, hText); }))),
+                      h('tr', null, ['DATE/TIME', 'TYPE', 'EXCH', 'TICKER', 'PRICE', 'QTY', 'GROSS', 'FEE', 'NET ₱', 'MEMO'].map(function (hText) { return h('th', { key: hText, className: "th mono", style: { fontSize: 8, textAlign: 'left', padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.08)', color: '#64748b' } }, hText); }))),
                     h('tbody', null, sortedTrades.map(function (t, i) {
                       var isBuy = t.type === 'BUY';
                       var sm = S(t.exchange);
@@ -689,13 +689,13 @@
           h('div', { className: "glass scroll", style: { padding: 'var(--pad)', display: 'flex', flexDirection: 'column', gap: 'var(--gap)', overflow: 'auto' } },
             h('span', { className: "sec-hd tm" }, "Fund Account"),
             h('div', { className: "seg-w", style: { gridTemplateColumns: '1fr 1fr' } }, ['DEPOSIT', 'WITHDRAW'].map(function (v) { return h('button', { key: v, onClick: function () { setWType(v); }, className: 'seg-b ' + (v === 'DEPOSIT' ? 'dep' : 'wdw') + (wType === v ? ' on' : '') }, v === 'DEPOSIT' ? '+ Deposit' : '− Withdraw'); })),
-            h(C.F, { label: "Currency" }, h('div', { className: "seg-w", style: { gridTemplateColumns: '1fr 1fr' } }, ['PHP', 'USD'].map(function (c) { return h('button', { key: c, onClick: function () { setWCurrency(c); }, className: 'seg-b dep' + (wCurrency === c ? ' on' : ''), style: { fontSize: 9 } }, c === 'PHP' ? '₱ PHP' : '$ USD'); }))),
+            h(C.F, { label: "Currency" }, h('div', { className: "seg-w", style: { gridTemplateColumns: '1fr 1fr' } }, ['₱', 'USD'].map(function (c) { return h('button', { key: c, onClick: function () { setWCurrency(c); }, className: 'seg-b dep' + (wCurrency === c ? ' on' : ''), style: { fontSize: 9 } }, c); }))),
             h(C.F, { label: 'Amount (' + (wCurrency === 'USD' ? '$' : '₱') + ')' }, h('input', { id: "wallet-amount", type: "number", step: "1000", min: "0", className: "inp", placeholder: "0.00", value: wAmt, onChange: function (e) { setWAmt(e.target.value); } })),
             h(C.F, { label: "Source" }, h('select', { className: "inp", value: wSrc, onChange: function (e) { setWSrc(e.target.value); } }, (E.SOURCES || []).map(function (s) { return h('option', { key: s, value: s }, s); }))),
             h(C.F, { label: "Date" }, h('input', { type: "date", className: "inp", value: wDate, onChange: function (e) { setWDate(e.target.value); } })),
             h(C.F, { label: "Memo" }, h('input', { type: "text", className: "inp", placeholder: "Optional…", value: wNote, onChange: function (e) { setWNote(e.target.value); } })),
             h('button', { id: "wallet-submit", onClick: execWallet, disabled: !parseFloat(wAmt) || parseFloat(wAmt) <= 0, className: 'btn ' + (wType === 'DEPOSIT' ? 'btn-buy' : 'btn-sell'), style: { width: '100%' } }, wType === 'DEPOSIT' ? '↓  RECORD DEPOSIT' : '↑  RECORD WITHDRAWAL'),
-            h('div', { className: "inset", style: { padding: '10px 11px' } }, [['Total Deposited', '#c7e2f7', '+₱' + f2(port.totalDep)], ['Total Withdrawn', '#5a6472', '-₱' + f2(port.totalWdw)], ['PHP Cash', '#3b82f6', '₱' + f2(port.cashPHP)], ['USD Cash', '#60a5fa', '$' + f2(port.cashUSD)]].map(function (item, idx) {
+            h('div', { className: "inset", style: { padding: '10px 11px' } }, [['Total Deposited', '#c7e2f7', '+₱' + f2(port.totalDep)], ['Total Withdrawn', '#5a6472', '-₱' + f2(port.totalWdw)], ['₱ Cash', '#3b82f6', '₱' + f2(port.cashPHP)], ['USD Cash', '#60a5fa', '$' + f2(port.cashUSD)]].map(function (item, idx) {
               return h('div', { key: item[0], style: { display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderTop: idx > 0 ? '1px solid rgba(128,128,128,.09)' : 'none' } }, h('span', { className: "tm", style: { fontSize: 9.5 } }, item[0]), h(C.N, { v: item[2], priv: priv, style: { fontSize: 12.5, fontWeight: 700, color: item[1], textShadow: isDark ? '0 0 7px ' + item[1] + '55' : 'none' } }));
             }))),
           h('div', { className: "glass", style: { overflow: 'hidden', display: 'flex', flexDirection: 'column' } },
@@ -703,7 +703,7 @@
             h('div', { className: "scroll", style: { flex: 1, overflow: 'auto' } }, h('table', { className: "tbl" }, h('thead', null, h('tr', null, h('th', { className: "th" }, "Date"), h('th', { className: "th" }, "Type"), h('th', { className: "th" }, "Cur."), h('th', { className: "th" }, "Source"), h('th', { className: "th" }, "Amount"), h('th', { className: "th" }, "Memo"))), h('tbody', null, sortedFunding.length === 0 ? h('tr', { className: "tdb" }, h('td', { colSpan: 6, className: "td tf", style: { textAlign: 'center', padding: '36px', fontFamily: 'Inter,sans-serif' } }, "No records yet")) : sortedFunding.map(function (ff, i) {
               var isU = ff && (ff.currency || 'PHP').toUpperCase() === 'USD';
               var sm = isU ? '$' : '₱';
-              return h('tr', { key: (ff && ff.id) || i, className: "tr-h tdb" }, h('td', { className: "td mono tm", style: { fontSize: 10 } }, (ff && ff.date) || ''), h('td', { className: "td" }, h('span', { className: 'tag tag-' + ((ff && ff.type) === 'DEPOSIT' ? 'dep' : 'wdw') }, (ff && ff.type) || '')), h('td', { className: "td" }, h('span', { className: isU ? 'hud-badge hud-usd-badge' : 'hud-badge hud-php-badge', style: { fontSize: 7 } }, isU ? 'USD' : 'PHP')), h('td', { className: "td ts", style: { fontFamily: 'Inter,sans-serif', fontWeight: 500 } }, (ff && ff.source) || ''), h('td', { className: "td" }, h(C.N, { v: (ff && ff.type) === 'DEPOSIT' ? ('+' + sm + f2(ff && ff.amount)) : ('−' + sm + f2(ff && ff.amount)), priv: priv, style: { color: (ff && ff.type) === 'DEPOSIT' ? '#c7e2f7' : '#5a6472', fontWeight: 700 } })), h('td', { className: "td tf", style: { fontSize: 9, fontFamily: 'Inter,sans-serif' } }, (ff && ff.note) || '—'));
+              return h('tr', { key: (ff && ff.id) || i, className: "tr-h tdb" }, h('td', { className: "td mono tm", style: { fontSize: 10 } }, (ff && ff.date) || ''), h('td', { className: "td" }, h('span', { className: 'tag tag-' + ((ff && ff.type) === 'DEPOSIT' ? 'dep' : 'wdw') }, (ff && ff.type) || '')), h('td', { className: "td" }, h('span', { className: isU ? 'hud-badge hud-usd-badge' : 'hud-badge hud-php-badge', style: { fontSize: 7 } }, isU ? 'USD' : '₱')), h('td', { className: "td ts", style: { fontFamily: 'Inter,sans-serif', fontWeight: 500 } }, (ff && ff.source) || ''), h('td', { className: "td" }, h(C.N, { v: (ff && ff.type) === 'DEPOSIT' ? ('+' + sm + f2(ff && ff.amount)) : ('−' + sm + f2(ff && ff.amount)), priv: priv, style: { color: (ff && ff.type) === 'DEPOSIT' ? '#c7e2f7' : '#5a6472', fontWeight: 700 } })), h('td', { className: "td tf", style: { fontSize: 9, fontFamily: 'Inter,sans-serif' } }, (ff && ff.note) || '—'));
             }))))),
           view === 'studylab' && h('div', { style: { height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' } },
             h('div', { style: { flexShrink: 0, padding: '8px var(--pad)', background: isDark ? 'rgba(139,92,246,.07)' : 'rgba(139,92,246,.05)', borderBottom: '1px solid rgba(139,92,246,.18)', display: 'flex', alignItems: 'center', gap: 12 } },

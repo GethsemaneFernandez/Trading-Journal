@@ -169,6 +169,64 @@
     return { ok: true };
   }
 
+  function runSimulation(baseTk, enriched, steps, usePse, fxRate, onError) {
+    var base = null;
+    for (var i = 0; i < enriched.length; i++) {
+      if (enriched[i].ticker === baseTk) { base = enriched[i]; break; }
+    }
+    var ex   = base ? base.exchange : 'PSE';
+    var qty  = base ? base.qty  : 0;
+    var cost = base ? base.totalCostNative : 0;
+    var totalRealGLPHP = 0;
+    var log  = [];
+    var rate = parseFloat(fxRate) || 60;
+
+    for (var si = 0; si < steps.length; si++) {
+      var step = steps[si];
+      var fee  = calcFee(step.side, step.price, step.qty, usePse, ex);
+      var sp   = parseFloat(step.price);
+      var sq   = parseFloat(step.qty);
+
+      if (step.side === 'BUY') {
+        var nc = isForex(ex) ? sp * sq : sp * sq + fee;
+        cost += nc; qty += sq;
+        log.push({ step: step.label, side: 'BUY', price: sp, qty: sq, fee: fee, newQty: qty, newAvg: qty > 0 ? cost / qty : 0, newCost: cost, realGL: null, realGLPHP: null, ex: ex });
+
+      } else {
+        if (sq > qty + 0.000001) {
+          if (typeof onError === 'function') onError('Sim: cannot sell more than owned');
+          return null;
+        }
+        var natGL, phpGL;
+        if (isForex(ex)) {
+          var entryAvg = qty > 0 ? cost / qty : 0;
+          natGL    = (sp - entryAvg) * sq;
+          phpGL    = natGL * rate;
+          cost    -= entryAvg * sq;
+        } else {
+          var proceeds = sp * sq - fee;
+          var avgAt    = qty > 0 ? cost / qty : 0;
+          natGL        = proceeds - sq * avgAt;
+          phpGL        = toPHP(natGL, ex, fxRate);
+          cost        -= proceeds;
+        }
+        totalRealGLPHP += phpGL;
+        qty -= sq;
+        if (qty < 0.000001) { qty = 0; cost = Math.max(0, cost); }
+        log.push({ step: step.label, side: 'SELL', price: sp, qty: sq, fee: fee, newQty: qty, newAvg: qty > 0 ? cost / qty : 0, newCost: cost, realGL: natGL, realGLPHP: phpGL, ex: ex });
+      }
+    }
+
+    return {
+      ex: ex, qty: qty, cost: cost,
+      newAvgNative:   qty > 0 ? cost / qty : 0,
+      bev:            breakEven(cost, qty, ex, usePse),
+      costPHP:        toPHP(cost, ex, fxRate),
+      totalRealGLPHP: totalRealGLPHP,
+      log: log,
+    };
+  }
+
   function getAdvancedMetrics(trades, funding, fxRate) {
     var gp = 0, gl = 0, hw = [], hl = [], pm = {}, od = {}, re = 0;
     (funding || []).forEach(function(f) { re += (f.type === 'DEPOSIT' ? 1 : -1) * (parseFloat(f.amount) || 0); });
@@ -188,7 +246,7 @@
     return { profitFactor: gl !== 0 ? gp / Math.abs(gl) : (gp > 0 ? 999 : 1), maxDrawdown: mdd, avgHoldWin: avgA(hw), avgHoldLoss: avgA(hl), grossProfit: gp, grossLoss: gl, totalRealized: gp + gl, equityPoints: eq };
   }
 
-  var CORS = 'https://api.allorigins.win/get?url=', YAHOO_BASE = 'https://query1.finance.yahoo.com/v8/finance/chart/';
+  var CORS = '/api/prices?url=', YAHOO_BASE = 'https://query1.finance.yahoo.com/v8/finance/chart/';
   function toYahooForex(s) { return s.indexOf('=') === -1 ? s + '=X' : s; }
   function toYahooCrypto(s){ return s.indexOf('-') === -1 ? s + '-USD' : s; }
   function toYahooPSE(s)   { return s.indexOf('.') === -1 ? s + '.PS' : s; }
@@ -241,7 +299,7 @@
     isUSD: isUSD, isCrypto: isCrypto, isForex: isForex, toPHP: toPHP, calcFee: calcFee, breakEven: breakEven,
     calculatePositions: calculatePositions, runPortfolio: calculatePositions, runMockPortfolio: calculatePositions,
     getPerformanceStats: getPerformanceStats, getFundingStats: getFundingStats, getRiskMetrics: getRiskMetrics,
-    validateWithdrawal: validateWithdrawal, getAdvancedMetrics: getAdvancedMetrics, fetchPrices: fetchPrices,
+    validateWithdrawal: validateWithdrawal, runSimulation: runSimulation, getAdvancedMetrics: getAdvancedMetrics, fetchPrices: fetchPrices,
     f0: f0, f2: f2, f4: f4, f5: f5, pct: pct, sgn: sgn, G: G, S: S
   };
   window.BasicEngine = window.SovereignEngine = window.SovEngine = engine;
