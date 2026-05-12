@@ -182,7 +182,7 @@
                 h('span', { className: "tf", style: { fontSize: 8.5 } }, p.exchange + " · " + lots + " lot" + (lots !== 1 ? 's' : ''))
               ),
               h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 10px' } },
-                [['Qty', f0(p.qty)], ['Avg Entry', (S(p.exchange)) + f4(p.avgNative)], ['Alloc', alloc + '%'], ['UPnL', ((p.uplPHP || 0) >= 0 ? '+' : '') + f2(p.uplPHP || 0)]].map(function (row, j) {
+                [['Qty', f0(p.qty)], ['Avg Entry', (S(p.exchange)) + (E.isForex(p.exchange)?f5(p.avgNative):f4(p.avgNative))], ['Alloc', alloc + '%'], ['UPnL', ((p.uplPHP || 0) >= 0 ? '+' : '') + f2(p.uplPHP || 0)]].map(function (row, j) {
                   return h('div', { key: j, style: { display: 'flex', justifyContent: 'space-between' } },
                     h('span', { className: "tf", style: { fontSize: 7.5, opacity: 0.55 } }, row[0]),
                     h('span', { className: "mono", style: { fontSize: 8.5, fontWeight: 600, color: row[0] === 'UPnL' ? ((p.uplPHP || 0) >= 0 ? '#c7e2f7' : '#f43f5e') : '#94a3b8' } }, row[1])
@@ -349,7 +349,6 @@
     var _uv = useState(false); var usdView = _uv[0]; var setUsdView = _uv[1];
     var _view = useState('dashboard'); var view = _view[0]; var setView = _view[1];
     var _rfr = useState(false); var refreshing = _rfr[0]; var setRefreshing = _rfr[1];
-    var _ibkr = useState(false); var useIBKR = _ibkr[0]; var setUseIBKR = _ibkr[1];
     var _lp = useState(true); var showLedgerPerf = _lp[0]; var setShowLedgerPerf = _lp[1];
 
     var _trades = useState([]); var trades = _trades[0]; var setTrades = _trades[1];
@@ -359,7 +358,9 @@
     var _tl = useState(function () { return { PSE: [].concat(E.SEED_TICKERS ? E.SEED_TICKERS.PSE : []), NASDAQ: [].concat(E.SEED_TICKERS ? E.SEED_TICKERS.NASDAQ : []), NYSE: [].concat(E.SEED_TICKERS ? E.SEED_TICKERS.NYSE : []), CRYPTO: [].concat(E.SEED_TICKERS ? E.SEED_TICKERS.CRYPTO : []), FOREX: [].concat(E.SEED_TICKERS ? E.SEED_TICKERS.FOREX : []) }; });
     var tickerLists = _tl[0]; var setTickerLists = _tl[1];
     var _ssv = useState([]); var savedScenarios = _ssv[0]; var setSavedScenarios = _ssv[1];
-    var _mp = useState({}); var mktPx = _mp[0]; var setMktPx = _mp[1];
+    var _mp = useState(function(){
+        try { return JSON.parse(localStorage.getItem(E.K.mkt)) || {}; } catch(e){ return {}; }
+    }); var mktPx = _mp[0]; var setMktPx = _mp[1];
     var _tlist = C.useToasts(); var toasts = _tlist[0]; var addToast = _tlist[1];
 
     useEffect(function () {
@@ -483,12 +484,12 @@
       addToast('[MOCK] ' + side + ' ' + f0(t.qty) + ' ' + t.ticker, 'info');
     }
 
-    function doRefresh() {
+    function doRefresh(dateStr) {
       var all = enriched.concat(mockEnriched);
-      if (!all.length) { addToast('No positions to refresh', 'warn'); return; }
+      if (!all.length && !dateStr) { addToast('No positions to refresh', 'warn'); return; }
       setRefreshing(true);
       if(E.fetchPrices) {
-          E.fetchPrices(all).then(function (res) {
+          E.fetchPrices(all, dateStr).then(function (res) {
             setRefreshing(false);
             if (!res) { addToast('Price fetch failed — Manual Mode', 'err'); return; }
             setMktPx(function (prev) { return Object.assign({}, prev, res.updated); });
@@ -501,11 +502,6 @@
           setRefreshing(false);
       }
     }
-
-    useEffect(function () {
-      var interval = setInterval(function () { if (enriched.length > 0 || mockEnriched.length > 0) doRefresh(); }, 60000);
-      return function () { clearInterval(interval); };
-    }, [enriched.length, mockEnriched.length]);
 
     function resetAll() { if (!window.confirm('Delete ALL live data?')) return;[E.K.t, E.K.f, E.K.ok].forEach(function (k) { localStorage.removeItem(k); }); setTrades([]); setFunding([]); addToast('Terminal reset', 'info'); }
     function resetMock() { if (!window.confirm('Delete all Study Lab data?')) return; localStorage.removeItem(E.K.mock); setMockTrades([]); addToast('Study Lab cleared', 'info'); }
@@ -602,12 +598,7 @@
           h('button', { id: "theme-toggle", onClick: function () { setDark(function (d) { return !d; }); }, className: "ic" }, isDark ? h(C.IcSun) : h(C.IcMoon)),
           h('button', { id: "settings-toggle", onClick: function () { setShowSettings(true); }, className: "ic" }, h(C.IcSettings)),
           h('button', { id: "priv-toggle", onClick: function () { setPriv(function (p) { return !p; }); }, className: 'ic' + (priv ? ' on' : '') }, priv ? h(C.IcEyeOff) : h(C.IcEye)),
-          h('button', { id: "refresh-btn", onClick: doRefresh, className: 'refresh-btn' + (refreshing ? ' loading' : ''), style: { fontFamily: 'JetBrains Mono,monospace', fontSize: 8, padding: '2px 8px', borderRadius: '.4rem', cursor: 'pointer', transition: 'all .18s', background: isDark ? 'rgba(59,130,246,.09)' : 'rgba(59,130,246,.07)', border: isDark ? '1px solid rgba(59,130,246,.22)' : '1px solid rgba(59,130,246,.18)', color: isDark ? '#60a5fa' : '#1d4ed8', display: 'flex', alignItems: 'center', gap: 3 } }, h(C.IcRefresh), refreshing ? 'Syncing…' : 'Refresh'),
-          h('button', { id: "ibkr-toggle", onClick: function () { setUseIBKR(function (v) { return !v; }); },
-            className: useIBKR ? 'ibkr-on' : 'ibkr-off',
-            title: useIBKR ? 'Using NASDAQ Live Prices' : 'Using Yahoo/Phisix Prices',
-            style: { padding: '2px 8px', borderRadius: '.4rem', cursor: 'pointer', fontFamily: 'Geist Mono,monospace', fontSize: 8, fontWeight: 700, letterSpacing: '.04em', transition: 'all .18s', background: useIBKR ? (isDark ? 'rgba(110,231,183,.12)' : 'rgba(110,231,183,.09)') : (isDark ? 'rgba(148,163,184,.08)' : 'rgba(148,163,184,.06)'), border: useIBKR ? (isDark ? '1px solid rgba(110,231,183,.3)' : '1px solid rgba(110,231,183,.25)') : (isDark ? '1px solid rgba(148,163,184,.15)' : '1px solid rgba(148,163,184,.12)'), color: useIBKR ? (isDark ? '#6ee7b7' : '#065f46') : (isDark ? '#94a3b8' : '#64748b') } },
-            useIBKR ? 'NASDAQ' : 'Yahoo'),
+          h('button', { id: "refresh-btn", onClick: function(){ doRefresh(); }, className: 'refresh-btn' + (refreshing ? ' loading' : ''), style: { fontFamily: 'JetBrains Mono,monospace', fontSize: 8, padding: '2px 8px', borderRadius: '.4rem', cursor: 'pointer', transition: 'all .18s', background: isDark ? 'rgba(59,130,246,.09)' : 'rgba(59,130,246,.07)', border: isDark ? '1px solid rgba(59,130,246,.22)' : '1px solid rgba(59,130,246,.18)', color: isDark ? '#60a5fa' : '#1d4ed8', display: 'flex', alignItems: 'center', gap: 3 } }, h(C.IcRefresh), refreshing ? 'Syncing…' : 'Refresh'),
           h('button', { id: "usd-view-btn", onClick: function () { setUsdView(function (v) { return !v; }); }, className: 'usd-toggle' + (usdView ? ' on' : '') }, usdView ? '$ USD VIEW' : '₱ VIEW'),
           h('button', { id: "reset-btn", onClick: resetAll, className: "ghost tm", style: { padding: '2px 8px', borderRadius: '.4rem', cursor: 'pointer', fontFamily: 'Inter,sans-serif', fontSize: 9, fontWeight: 500, transition: 'all .15s' } }, "Reset")
         )
@@ -705,22 +696,15 @@
               var sm = isU ? '$' : '₱';
               return h('tr', { key: (ff && ff.id) || i, className: "tr-h tdb" }, h('td', { className: "td mono tm", style: { fontSize: 10 } }, (ff && ff.date) || ''), h('td', { className: "td" }, h('span', { className: 'tag tag-' + ((ff && ff.type) === 'DEPOSIT' ? 'dep' : 'wdw') }, (ff && ff.type) || '')), h('td', { className: "td" }, h('span', { className: isU ? 'hud-badge hud-usd-badge' : 'hud-badge hud-php-badge', style: { fontSize: 7 } }, isU ? 'USD' : '₱')), h('td', { className: "td ts", style: { fontFamily: 'Inter,sans-serif', fontWeight: 500 } }, (ff && ff.source) || ''), h('td', { className: "td" }, h(C.N, { v: (ff && ff.type) === 'DEPOSIT' ? ('+' + sm + f2(ff && ff.amount)) : ('−' + sm + f2(ff && ff.amount)), priv: priv, style: { color: (ff && ff.type) === 'DEPOSIT' ? '#c7e2f7' : '#5a6472', fontWeight: 700 } })), h('td', { className: "td tf", style: { fontSize: 9, fontFamily: 'Inter,sans-serif' } }, (ff && ff.note) || '—'));
             }))))),
-          view === 'studylab' && h('div', { style: { height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' } },
-            h('div', { style: { flexShrink: 0, padding: '8px var(--pad)', background: isDark ? 'rgba(139,92,246,.07)' : 'rgba(139,92,246,.05)', borderBottom: '1px solid rgba(139,92,246,.18)', display: 'flex', alignItems: 'center', gap: 12 } },
-              h(C.IcFlask), h('span', { style: { fontSize: 10.5, fontWeight: 700, color: '#a78bfa', letterSpacing: '.06em' } }, "STUDY LAB — MOCK PORTFOLIO"),
-              h('span', { className: "tf", style: { fontSize: 9 } }, "Virtual environment · Risk-free forward testing · Data isolated from Live Ledger"),
-              h('div', { style: { marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 } },
-                h('span', { className: "mono", style: { fontSize: 10, color: '#a78bfa' } }, "Positions: " + (mockEnriched ? mockEnriched.length : 0)),
-                h('span', { className: "mono", style: { fontSize: 10, color: '#a78bfa' } }, "Trades: " + (mockTrades ? mockTrades.length : 0)),
-                h('button', { onClick: cloneToLab, className: "ghost", style: { padding: '2px 8px', borderRadius: '.4rem', fontSize: 9, cursor: 'pointer', fontFamily: 'Inter,sans-serif', color: '#a78bfa', border: '1px solid rgba(167,139,250,.25)', background: 'rgba(167,139,250,.08)' } }, "Clone Live to Lab"),
-                h('button', { onClick: resetMock, className: "ghost", style: { padding: '2px 8px', borderRadius: '.4rem', fontSize: 9, cursor: 'pointer', fontFamily: 'Inter,sans-serif', color: '#5a6472', border: '1px solid rgba(244,63,94,.20)', background: 'rgba(244,63,94,.06)' } }, "Clear Lab"))),
-            h('div', { style: { flex: 1, minHeight: 0, overflow: 'hidden' } },
-              h(DashboardBody, { enriched: mockEnriched, port: mockPort, trades: mockTrades, funding: [], tickerLists: tickerLists, mktPx: mktPx, setMktPx: setMktPx, psiFee: psiFee, fxRate: fxRate, isDark: isDark, priv: priv, scale: scale, addTicker: addTicker, deleteTicker: deleteTicker, onExecTrade: execMockTrade, isMock: true, savedScenarios: savedScenarios, setSavedScenarios: setSavedScenarios, addToast: addToast, saveTrades: function (nT) { saveMock(nT); } }))),
+          view === 'studylab' && h(SL.StudyLabUI, { liveTrades: trades, liveFunding: funding, tickerLists: tickerLists, mktPx: mktPx, setMktPx: setMktPx, psiFee: psiFee, fxRate: fxRate, isDark: isDark, priv: priv, scale: scale, addTicker: addTicker, deleteTicker: deleteTicker, addToast: addToast, doRefresh: doRefresh }),
         view === 'sandbox' && h(SL.PredictorV42, { enriched: enriched, trades: trades, usePse: psiFee, fxRate: fxRate, save: save, savedScenarios: savedScenarios, setSavedScenarios: setSavedScenarios, addToast: addToast, isDark: isDark, priv: priv, tickerLists: tickerLists })
       )
       )
     );
   }
+
+  /* ── EXPOSE ── */
+  window.DashboardBody = DashboardBody;
 
   /* ── Mount ── */
   console.log('Attempting to mount...');

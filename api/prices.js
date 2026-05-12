@@ -1,8 +1,20 @@
 export default async function handler(req, res) {
-  const { url } = req.query;
+  let { url, symbol, period1, period2, interval = '1d' } = req.query;
+
+  // If symbol is provided, construct the Yahoo Finance URL
+  if (!url && symbol) {
+    url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
+    const params = new URLSearchParams();
+    if (period1) params.append('period1', period1);
+    if (period2) params.append('period2', period2);
+    params.append('interval', interval);
+    params.append('includePrePost', 'false');
+    params.append('events', 'div|split');
+    url += `?${params.toString()}`;
+  }
 
   if (!url) {
-    return res.status(400).json({ error: 'Missing url parameter' });
+    return res.status(400).json({ error: 'Missing url or symbol parameter' });
   }
 
   try {
@@ -13,12 +25,15 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+      // Return error status and body if Yahoo returns an error (e.g. 404 for invalid symbol)
+      const errData = await response.json().catch(() => ({}));
+      return res.status(response.status).json({ error: `Yahoo API error: ${response.status}`, details: errData });
     }
 
     const data = await response.json();
 
     // Mimic AllOrigins format: { contents: "stringified_json" }
+    // This maintains backward compatibility with the existing client logic.
     return res.status(200).json({
       contents: JSON.stringify(data)
     });

@@ -1,13 +1,14 @@
 /* ═══════════════════════════════════════════════════════════
-   BASIC JOURNAL V1.5.0-MASSIVE — FINANCIAL ENGINE
+   BASIC JOURNAL V1.5.1-MASSIVE — FINANCIAL ENGINE
    window.BasicEngine  (primary) | window.SovereignEngine (alias)
    ─────────────────────────────────────────────────────────
    V1.5.1 CORRECTIONS:
    1. FOREX PIP ENGINE V2: Unrealized_P&L = (Current_Price - Entry_Price) * Units.
    2. ANALYTICS ENGINE: Profit Factor, Max Drawdown, Avg Hold Time.
-   3. PSE PRICE FIX: Yahoo Finance v8 chart individual fetch (Phisix fallback integrated)
+   3. PSE PRICE FETCH: Improved Yahoo Finance v8 chart fetch with historical support.
    4. OPTION A MATH preserved: newCost = initialCost − netProceeds
-   5. SMART USD DEDUCTION preserved
+   5. SMART USD DEDUCTION: Cross-currency balance usage.
+   6. PERSISTENT MARKET PRICES: LocalStorage caching.
 ═══════════════════════════════════════════════════════════ */
 (function (window) {
   'use strict';
@@ -26,7 +27,7 @@
   var K = {
     t: 'bj15_t', f: 'bj15_f', ok: 'bj15_ok', th: 'bj15_th', sc: 'bj15_sc',
     pr: 'bj15_pr', fe: 'bj15_fe', fx: 'bj15_fx', tk: 'bj15_tk', ss: 'bj15_ss',
-    sp: 'bj15_sp', mock: 'bj15_mock'
+    sp: 'bj15_sp', mock: 'bj15_mock', mkt: 'bj15_mkt'
   };
 
   function isUSD(ex)    { return ex === 'NASDAQ' || ex === 'NYSE'; }
@@ -246,16 +247,21 @@
     return { profitFactor: gl !== 0 ? gp / Math.abs(gl) : (gp > 0 ? 999 : 1), maxDrawdown: mdd, avgHoldWin: avgA(hw), avgHoldLoss: avgA(hl), grossProfit: gp, grossLoss: gl, totalRealized: gp + gl, equityPoints: eq };
   }
 
-  var CORS = '/api/prices?url=', YAHOO_BASE = 'https://query1.finance.yahoo.com/v8/finance/chart/';
   function toYahooForex(s) { return s.indexOf('=') === -1 ? s + '=X' : s; }
   function toYahooCrypto(s){ return s.indexOf('-') === -1 ? s + '-USD' : s; }
   function toYahooPSE(s)   { return s.indexOf('.') === -1 ? s + '.PS' : s; }
-  function toYahooNikkei(s){ return s.indexOf('.') === -1 ? s + '.T' : s; }
 
-  function fetchPrices(positionList) {
+  function fetchPrices(positionList, dateStr) {
     var updated = {}, globalFailed = false, map = {};
     (positionList || []).forEach(function(p) { if (p.ticker) map[p.ticker.toUpperCase()] = p.exchange || 'PSE'; });
     if (!map['USDPHP']) map['USDPHP'] = 'FOREX';
+
+    var p1, p2;
+    if (dateStr) {
+      var d = new Date(dateStr);
+      p1 = Math.floor(d.getTime() / 1000);
+      p2 = p1 + 86400; // Look at a 24h window for historical
+    }
 
     var tasks = Object.keys(map).map(function(sym) {
       var ex = map[sym], ys = sym;
@@ -263,9 +269,11 @@
       else if (isForex(ex)) ys = toYahooForex(sym);
       else if (isCrypto(ex)) ys = toYahooCrypto(sym);
       else if (ex === 'NYSE') ys = sym.replace('.', '-');
-      else if (ex === 'NIKKEI') ys = toYahooNikkei(sym);
 
-      return fetch(CORS + encodeURIComponent(YAHOO_BASE + ys)).then(function(r) { return r.json(); })
+      var url = '/api/prices?symbol=' + encodeURIComponent(ys);
+      if (p1 && p2) url += '&period1=' + p1 + '&period2=' + p2;
+
+      return fetch(url).then(function(r) { return r.json(); })
         .then(function(j) {
           if (j && j.contents) {
             var d = JSON.parse(j.contents);
@@ -282,7 +290,15 @@
         }).catch(function() { globalFailed = true; });
     });
 
-    return Promise.all(tasks).then(function() { return { updated: updated, pseFailed: false, globalFailed: globalFailed }; });
+    return Promise.all(tasks).then(function() {
+      if (!dateStr && Object.keys(updated).length > 0) {
+        var existing = {};
+        try { existing = JSON.parse(localStorage.getItem(K.mkt)) || {}; } catch(e){}
+        var merged = Object.assign({}, existing, updated, { _lastUpdate: new Date().toISOString() });
+        localStorage.setItem(K.mkt, JSON.stringify(merged));
+      }
+      return { updated: updated, pseFailed: false, globalFailed: globalFailed };
+    });
   }
 
   function f0(v) { return (parseFloat(v)||0).toLocaleString('en-US',{maximumFractionDigits:0}); }
