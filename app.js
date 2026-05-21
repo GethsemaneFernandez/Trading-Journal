@@ -267,7 +267,7 @@
       h('nav', { className: "nav-bar", style: { height: 60, flexShrink: 0, display: 'flex', alignItems: 'center', padding: '0 20px', gap: 10, borderBottom: '1px solid rgba(255,255,255,0.05)', background: '#0d1117' } },
         h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, marginRight: 10 } },
           h('svg', { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none" }, h('path', { d: "M12 2L2 7L2 17L12 22L22 17L22 7L12 2Z", stroke: "#3b82f6", strokeWidth: 2, fill: "rgba(59,130,246,0.1)" })),
-          h('div', null, h('div', { style: { color: '#c7e2f7', fontWeight: 900, fontSize: 11, letterSpacing: '0.1em' } }, "BASIC JOURNAL"), h('div', { className: "mono tf", style: { fontSize: 7, opacity: 0.6 } }, "V1.5.1-OPTIMIZED"))
+          h('div', null, h('div', { style: { color: '#c7e2f7', fontWeight: 900, fontSize: 11, letterSpacing: '0.1em' } }, "BASIC JOURNAL"), h('div', { className: "mono tf", style: { fontSize: 7, opacity: 0.6 } }, "V1.5.1-MASSIVE"))
         ),
         [{ v: 'dashboard', l: 'Dashboard' }, { v: 'ledger', l: 'Ledger' }, { v: 'wallet', l: 'Wallet' }, { v: 'studylab', l: 'Study Lab' }, { v: 'sandbox', l: 'Predictor' }].map(function (item) {
           return h('button', { key: item.v, id: 'nav-' + item.v, onClick: function () { setView(item.v); }, className: 'nl' + (view === item.v ? ' on' : '') }, item.l);
