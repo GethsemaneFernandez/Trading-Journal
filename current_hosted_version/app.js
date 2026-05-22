@@ -121,9 +121,43 @@
               )
         )
       ),
-      h('button', { onClick: function () { setTradeOpen(function (v) { return !v; }); }, className: 'chat-head' + (isTradeOpen ? ' active' : ''), style: { position: 'absolute', bottom: 25, left: 25, zIndex: 1000 } }, "TRADE"),
-      isTradeOpen && h('div', { className: "floating-panel", style: { position: 'absolute', bottom: 85, left: 25, width: 380, zIndex: 999, background: '#0d1117', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' } },
-        h(C.TradeForm, { enriched: enriched, psiFee: psiFee, fxRate: fxRate, tickerLists: tickerLists, mktPx: mktPx, onExec: onExecTrade, addTicker: addTicker, deleteTicker: deleteTicker, isDark: isDark, priv: priv, isMock: isMock, prefill: prefill, port: port })
+      h('button', {
+        onMouseDown: function (e) { e.stopPropagation(); setTradeOpen(function (v) { return !v; }); },
+        className: 'chat-head' + (isTradeOpen ? ' active' : ''),
+        style: { position: 'absolute', bottom: 25, left: 25, zIndex: 1000 }
+      },
+        h('div', { style: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 } },
+          h('span', { style: { fontSize: 8, fontWeight: 800, letterSpacing: '.05em' } }, 'TRADE'),
+          h('div', { style: { width: 12, height: 2, background: 'currentColor', borderRadius: 1 } })
+        )
+      ),
+      isTradeOpen && h('div', { className: 'floating-panel scroll', style: {
+        position: 'absolute', bottom: 85, left: 25,
+        width: 380, maxHeight: 'calc(100% - 120px)',
+        zIndex: 999,
+        background: '#0d1117',
+        border: '1px solid rgba(199,226,247,0.1)',
+        borderRadius: '14px',
+        boxShadow: '0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04)',
+        display: 'flex', flexDirection: 'column',
+        overflow: 'hidden'
+      } },
+        h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px 8px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 } },
+          h('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+            h('div', { style: { width: 6, height: 6, borderRadius: '50%', background: '#c7e2f7', boxShadow: '0 0 8px #c7e2f7' } }),
+            h('span', { className: 'sec-hd tm', style: { fontSize: 11, letterSpacing: '.06em' } }, 'EXECUTION TERMINAL')
+          ),
+          h('button', {
+            onMouseDown: function (e) { e.stopPropagation(); setTradeOpen(false); },
+            className: 'win-btn close', style: { width: 22, height: 22 }
+          }, h(C.IcX))
+        ),
+        h('div', { style: { flex: 1, overflowY: 'auto', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 12 } },
+          h(C.TradeForm, { enriched: enriched, psiFee: psiFee, fxRate: fxRate, tickerLists: tickerLists, mktPx: mktPx, onExec: onExecTrade, addTicker: addTicker, deleteTicker: deleteTicker, isDark: isDark, priv: priv, isMock: isMock, prefill: prefill, port: port }),
+          h('div', { style: { background: 'rgba(255,255,255,0.02)', borderRadius: 8, padding: '10px 12px', border: '1px solid rgba(255,255,255,0.05)', flexShrink: 0 } },
+            h(C.RiskCard, { enriched: enriched, totalMVPHP: totalMVPHP, totalEqPHP: totalEqPHP, cashPHP: (port.cashPHP || 0), isDark: isDark })
+          )
+        )
       )
     );
   }
