@@ -268,7 +268,7 @@
       if (ex === 'PSE') ys = toYahooPSE(sym);
       else if (isForex(ex)) ys = toYahooForex(sym);
       else if (isCrypto(ex)) ys = toYahooCrypto(sym);
-      else if (ex === 'NYSE') ys = sym.replace('.', '-');
+      else if (ex === 'NYSE' || ex === 'NASDAQ') ys = sym.replace('.', '-');
 
       var useProxy = window.location.hostname === 'localhost' || window.location.hostname.includes('github.io');
       var url;
