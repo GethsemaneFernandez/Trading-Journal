@@ -2,8 +2,8 @@
 *
 
 # Allow the current hosted version
-!current hosted version/
-!current hosted version/**
+!current_hosted_version/
+!current_hosted_version/**
 
 # Allow documentation and config
 !README.md
