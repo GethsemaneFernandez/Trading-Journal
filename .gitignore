@@ -1,0 +1,18 @@
+# Ignore all versions by default
+*
+
+# Allow the current hosted version
+!current hosted version/
+!current hosted version/**
+
+# Allow documentation and config
+!README.md
+!DEPLOYMENT.md
+!.gitignore
+
+# Standard Ignores
+node_modules/
+.DS_Store
+*.log
+.env
+.vercel/
