@@ -476,7 +476,7 @@
     var availableOther = isUsdMkt ? (port.cashPHP / fxRate) : (port.cashUSD * fxRate);
     var totalBuyingPower = availableNative + availableOther;
     var isInsufficient = side === 'BUY' && !isMock && finalCostNative > totalBuyingPower;
-    var canExec = !!tk && parseFloat(px) > 0 && parseFloat(qty) > 0 && !overSell;
+    var canExec = !!tk && parseFloat(px) > 0 && parseFloat(qty) > 0 && !overSell && !isInsufficient;
 
     return h('div', { className: "panel", style: { padding: 'var(--pad)', display: 'flex', flexDirection: 'column', gap: 'var(--gap)', flexShrink: 0 } },
       isMock && h('div', { style: { background: 'rgba(139,92,246,.10)', border: '1px solid rgba(139,92,246,.25)', borderRadius: 'var(--r-inp)', padding: '5px 10px', display: 'flex', alignItems: 'center', gap: 6 } },
@@ -566,7 +566,7 @@
       ),
       h('button', { id: (isMock ? 'mock-' : '') + 'execute-btn', onClick: handleExec, disabled: !canExec,
         className: 'btn ' + (side === 'BUY' ? 'btn-buy' : 'btn-sell'),
-        style: { width: '100%', letterSpacing: '.06em', opacity: isInsufficient ? 0.7 : 1, cursor: 'pointer' } },
+        style: { width: '100%', letterSpacing: '.06em', opacity: isInsufficient ? 0.5 : 1, cursor: isInsufficient ? 'not-allowed' : 'pointer' } },
         side === 'BUY' ? '▲  EXECUTE BUY' : '▼  EXECUTE SELL'
       ),
       isInsufficient && h('div', { className: "warn-b", style: { marginTop: 8 } },

@@ -268,33 +268,24 @@
       if (ex === 'PSE') ys = toYahooPSE(sym);
       else if (isForex(ex)) ys = toYahooForex(sym);
       else if (isCrypto(ex)) ys = toYahooCrypto(sym);
-      else if (ex === 'NYSE' || ex === 'NASDAQ') ys = sym.replace('.', '-');
+      else if (ex === 'NYSE') ys = sym.replace('.', '-');
 
-      var useProxy = window.location.hostname === 'localhost' || window.location.hostname.includes('github.io');
-      var url;
-      if (useProxy) {
-        var yUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/' + ys + '?interval=1d&includePrePost=false&events=div|split';
-        if (p1 && p2) yUrl += '&period1=' + p1 + '&period2=' + p2;
-        url = 'https://api.allorigins.win/get?url=' + encodeURIComponent(yUrl);
-      } else {
-        url = '/api/prices?symbol=' + encodeURIComponent(ys);
-        if (p1 && p2) url += '&period1=' + p1 + '&period2=' + p2;
-      }
+      var url = '/api/prices?symbol=' + encodeURIComponent(ys);
+      if (p1 && p2) url += '&period1=' + p1 + '&period2=' + p2;
 
       return fetch(url).then(function(r) { return r.json(); })
         .then(function(j) {
-          var d = j;
           if (j && j.contents) {
-            try { d = JSON.parse(j.contents); } catch(e) { d = null; }
-          }
-          if (d && d.chart && d.chart.result && d.chart.result[0]) {
-            var c = d.chart.result[0], m = c.meta;
-            var px = m.regularMarketPrice || m.chartPreviousClose || m.previousClose;
-            if (!px && c.indicators && c.indicators.quote && c.indicators.quote[0].close) {
-              var cls = c.indicators.quote[0].close.filter(function(v){return v!==null;});
-              if (cls.length) px = cls[cls.length-1];
+            var d = JSON.parse(j.contents);
+            if (d.chart && d.chart.result && d.chart.result[0]) {
+              var c = d.chart.result[0], m = c.meta;
+              var px = m.regularMarketPrice || m.chartPreviousClose || m.previousClose;
+              if (!px && c.indicators && c.indicators.quote && c.indicators.quote[0].close) {
+                var cls = c.indicators.quote[0].close.filter(function(v){return v!==null;});
+                if (cls.length) px = cls[cls.length-1];
+              }
+              if (px) updated[sym] = px;
             }
-            if (px) updated[sym] = px;
           }
         }).catch(function() { globalFailed = true; });
     });

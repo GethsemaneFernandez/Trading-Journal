@@ -16,11 +16,12 @@
   var f0 = E.f0; var f2 = E.f2; var f4 = E.f4; var f5 = E.f5;
   var pct = E.pct; var sgn = E.sgn; var G = E.G; var S = E.S;
 
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
   function StudyLabUI(props) {
     var tickerLists = props.tickerLists, mktPx = props.mktPx, setMktPx = props.setMktPx;
     var psiFee = props.psiFee, fxRate = props.fxRate, isDark = props.isDark, priv = props.priv;
     var addToast = props.addToast, doRefresh = props.doRefresh;
-    var savedScenarios = props.savedScenarios, setSavedScenarios = props.setSavedScenarios;
 
     var _mt = useState(function() {
         try { return JSON.parse(localStorage.getItem(E.K.mock)) || []; } catch(e){ return []; }
@@ -81,8 +82,7 @@
                 psiFee: psiFee, fxRate: fxRate, isDark: isDark, priv: priv,
                 scale: props.scale, addTicker: props.addTicker, deleteTicker: props.deleteTicker,
                 onExecTrade: function(t, side){ saveMock(mockTrades.concat([t])); addToast('[MOCK] ' + side + ' ' + t.ticker, 'info'); },
-                isMock: true, addToast: addToast, saveTrades: saveMock,
-                savedScenarios: savedScenarios, setSavedScenarios: setSavedScenarios
+                isMock: true, addToast: addToast, saveTrades: saveMock
             })
         )
     );
@@ -93,7 +93,7 @@
     var save = props.save, savedScenarios = props.savedScenarios || [], setSavedScenarios = props.setSavedScenarios;
     var addToast = props.addToast, isDark = props.isDark, priv = props.priv;
 
-    var _md = useState('BUY'); var sbMd = _md[0]; var setSbMd = _md[1];
+    var _md = useState('SELL'); var sbMd = _md[0]; var setSbMd = _md[1];
     var _tk = useState(''); var sbTk = _tk[0]; var setSbTk = _tk[1];
     var _px = useState(''); var sbPx = _px[0]; var setSbPx = _px[1];
     var _q = useState(''); var sbQty = _q[0]; var setSbQty = _q[1];
@@ -128,35 +128,6 @@
       addToast('Step ' + (sbStack.length + 1) + ' queued', 'info');
     }
     function handleClear() { setSbStack([]); setSimResult(null); setAuditLog([]); setSbPx(''); setSbQty(''); }
-
-    function handleCommit() {
-        if (!simResult || !sbTk) return;
-        var allSteps = simResult.pendingStep ? sbStack.concat([simResult.pendingStep]) : sbStack.slice();
-        var newT = allSteps.map(function (s, idx) {
-          return { id: 't' + Date.now() + idx, type: s.side, exchange: ex, ticker: sbTk, price: s.price, qty: s.qty, date: new Date().toISOString().slice(0, 10), time: new Date().toTimeString().slice(0, 5), notes: '[Predictor]', stopLoss: '', takeProfit: '' };
-        });
-        save(trades.concat(newT));
-        addToast('Committed ' + newT.length + ' trade(s): ' + sbTk, 'ok');
-        handleClear();
-    }
-
-    function handleSave() {
-        if (!simResult || !sbTk) return;
-        var sc = {
-          id: 'sc' + Date.now(),
-          name: window.prompt('Enter scenario name:', 'Scenario ' + (savedScenarios.length + 1)) || ('Scenario ' + (savedScenarios.length + 1)),
-          ticker: sbTk,
-          date: new Date().toISOString().slice(0, 10),
-          exchange: ex,
-          notes: '',
-          stack: simResult.pendingStep ? sbStack.concat([simResult.pendingStep]) : sbStack.slice(),
-          result: Object.assign({}, simResult, { log: auditLog }),
-          baseSnapshot: { qty: base ? base.qty : 0, totalCostNative: base ? base.totalCostNative : 0, avgNative: base ? base.avgNative : 0, exchange: ex }
-        };
-        var updated = [sc].concat(savedScenarios);
-        setSavedScenarios(updated); localStorage.setItem(E.K.ss, JSON.stringify(updated));
-        addToast('Scenario Saved', 'ok');
-    }
 
     return h('div', { style: { padding: 'var(--pad)', height: '100%', overflow: 'hidden', display: 'grid', gridTemplateColumns: '320px 1fr', gap: 'var(--gap)' } },
       /* Left: Control Panel */
@@ -200,52 +171,32 @@
           h('button', { onClick: handleClear, className: "ghost", style: { fontSize: 9, alignSelf: 'center', opacity: 0.5 } }, "Reset Predictor")
         ),
         simResult && h('div', { className: "lot-in", style: { padding: 12, background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' } },
-          h('div', { style: { fontSize: 9, fontWeight: 700, marginBottom: 8, color: '#f59e0b' } }, "SIMULATION RESULT:"),
+          h('div', { style: { fontSize: 9, fontWeight: 700, marginBottom: 8, color: '#f59e0b' } }, "PROJECTED STATE:"),
           h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } },
             h('div', null, h('span', { className: "tf", style: { fontSize: 7.5 } }, "New Qty"), h('div', { className: "mono", style: { fontSize: 10, fontWeight: 700 } }, f0(simResult.qty))),
-            h('div', null, h('span', { className: "tf", style: { fontSize: 7.5 } }, "New Avg"), h('div', { className: "mono", style: { fontSize: 10, fontWeight: 700 } }, sym + (E.isForex(ex)?f5(simResult.newAvgNative):f4(simResult.newAvgNative)))),
-            h('div', null, h('span', { className: "tf", style: { fontSize: 7.5 } }, "BEV"), h('div', { className: "mono", style: { fontSize: 10, fontWeight: 700, color: '#f59e0b' } }, sym + (E.isForex(ex) ? f5(simResult.bev) : f4(simResult.bev)))),
-            h('div', null, h('span', { className: "tf", style: { fontSize: 7.5 } }, "Sim P&L"), h('div', { className: "mono", style: { fontSize: 10, fontWeight: 700, color: G(simResult.totalRealGLPHP) } }, "₱" + f2(simResult.totalRealGLPHP)))
-          ),
-          h('div', { style: { marginTop: 12, display: 'flex', gap: 8 } },
-            h('button', { onClick: handleCommit, className: "btn btn-buy", style: { flex: 1, padding: '6px 0', fontSize: 9 } }, "COMMIT LIVE"),
-            h('button', { onClick: handleSave, className: "btn", style: { flex: 1, padding: '6px 0', fontSize: 9, background: '#8b5cf6', borderColor: '#8b5cf6' } }, "SAVE SCENARIO")
+            h('div', null, h('span', { className: "tf", style: { fontSize: 7.5 } }, "New BEV"), h('div', { className: "mono", style: { fontSize: 10, fontWeight: 700, color: '#f59e0b' } }, sym + (E.isForex(ex) ? f5(simResult.bev) : f4(simResult.bev)))),
+            h('div', null, h('span', { className: "tf", style: { fontSize: 7.5 } }, "Realized P&L"), h('div', { className: "mono", style: { fontSize: 10, fontWeight: 700, color: G(simResult.totalRealGLPHP) } }, "₱" + f2(simResult.totalRealGLPHP)))
           )
         )
       ),
-      /* Right: Scenarios */
+      /* Right: Audit Log of Predictor */
       h('div', { className: "panel scroll", style: { padding: 16 } },
         h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } },
-          h(C.IcFlask), h('span', { className: "sec-hd tm", style: { fontSize: 11 } }, "SCENARIO MULTIVERSE")
+          h(C.IcFlask), h('span', { className: "sec-hd tm", style: { fontSize: 11 } }, "STRATEGY QUEUE / AUDIT LOG")
         ),
-        savedScenarios.length === 0 ? h('div', { style: { height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }, className: "tf" }, "No saved scenarios.") :
-          h('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 } },
-            savedScenarios.map(function(sc) {
-                var r = sc.result, ex2 = sc.exchange || 'PSE';
-                return h('div', { key: sc.id, className: "inset", style: { padding: 12, background: 'rgba(255,255,255,0.02)', position: 'relative' } },
-                    h('div', { style: { display: 'flex', justifyContent: 'space-between', marginBottom: 8 } },
-                        h('div', null,
-                            h('div', { className: "tm", style: { fontSize: 10.5, fontWeight: 700, color: '#c7e2f7' } }, sc.name),
-                            h('div', { className: "tf mono", style: { fontSize: 8, opacity: 0.5 } }, sc.ticker + ' · ' + sc.date)
-                        ),
-                        h('button', { onClick: function(){ var updated = savedScenarios.filter(function(s){ return s.id !== sc.id; }); setSavedScenarios(updated); localStorage.setItem(E.K.ss, JSON.stringify(updated)); }, style: { background: 'transparent', border: 'none', color: '#5a6472', cursor: 'pointer' } }, h(C.IcTrash))
-                    ),
-                    h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 10 } },
-                        h('div', { className: "mono", style: { fontSize: 9 } }, "Qty: " + f0(r.qty)),
-                        h('div', { className: "mono", style: { fontSize: 9 } }, "Avg: " + S(ex2) + f4(r.newAvgNative)),
-                        h('div', { className: "mono", style: { fontSize: 9, color: '#f59e0b' } }, "BEV: " + S(ex2) + f4(r.bev)),
-                        h('div', { className: "mono", style: { fontSize: 9, color: G(r.totalRealGLPHP) } }, "P&L: ₱" + f2(r.totalRealGLPHP))
-                    ),
-                    h('textarea', { className: "inp", rows: 2, style: { fontSize: 9, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)' },
-                        placeholder: "Study notes / thesis...", value: sc.notes || '',
-                        onChange: function(e){
-                            var v = e.target.value;
-                            var updated = savedScenarios.map(function(s){ if(s.id === sc.id) return Object.assign({}, s, { notes: v }); return s; });
-                            setSavedScenarios(updated); localStorage.setItem(E.K.ss, JSON.stringify(updated));
-                        }
-                    })
+        auditLog.length === 0 ? h('div', { style: { height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }, className: "tf" }, "Queue steps to see impact.") :
+          h('table', { className: "tbl" },
+            h('thead', null, h('tr', null, h('th', { className: "th" }, "Step"), h('th', { className: "th" }, "Side"), h('th', { className: "th" }, "Price"), h('th', { className: "th" }, "Qty"), h('th', { className: "th" }, "Result Qty"), h('th', { className: "th" }, "Result Avg"))),
+            h('tbody', null, auditLog.map(function(l, idx){
+                return h('tr', { key: idx, className: "tr-h tdb" },
+                    h('td', { className: "td ts" }, l.step),
+                    h('td', { className: "td" }, h('span', { className: 'tag tag-' + l.side.toLowerCase() }, l.side)),
+                    h('td', { className: "td mono tm" }, sym + (E.isForex(l.ex)?f5(l.price):f4(l.price))),
+                    h('td', { className: "td mono tm" }, f0(l.qty)),
+                    h('td', { className: "td mono ts" }, f0(l.newQty)),
+                    h('td', { className: "td mono tm" }, sym + (E.isForex(l.ex)?f5(l.newAvg):f4(l.newAvg)))
                 );
-            })
+            }))
           )
       )
     );
