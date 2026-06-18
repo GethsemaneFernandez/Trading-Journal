@@ -63,6 +63,12 @@
     });
   }
 
+  function getTradeId(t) {
+    if (!t) return '';
+    var d = t.date ? t.date.slice(0, 10) : '';
+    return t.ticker + '-' + d + '-' + t.type + '-' + t.price;
+  }
+
   function StudyLabUI(props) {
     var tickerLists = props.tickerLists, mktPx = props.mktPx, setMktPx = props.setMktPx;
     var psiFee = props.psiFee, fxRate = props.fxRate, isDark = props.isDark, priv = props.priv;
@@ -82,10 +88,6 @@
     var _meta = useState(function() {
       try { return JSON.parse(localStorage.getItem('bj_trade_meta')) || {}; } catch(e) { return {}; }
     }); var tradeMeta = _meta[0]; var setTradeMeta = _meta[1];
-
-    var _ak = useState(function() {
-      return localStorage.getItem('bj_anthropic_key') || '';
-    }); var apiKey = _ak[0]; var setApiKey = _ak[1];
 
     var _out = useState(''); var aiOutput = _out[0]; var setAiOutput = _out[1];
     var _ld = useState(false); var aiLoading = _ld[0]; var setAiLoading = _ld[1];
@@ -127,8 +129,14 @@
 
     function cloneLive() {
       if (!window.confirm('Clone all live trades to Study Lab?')) return;
-      saveMock(JSON.parse(JSON.stringify(props.liveTrades)));
-      addToast('Live Ledger Cloned to Lab', 'ok');
+      console.log('[cloneLive]', props.liveTrades);
+      var source = (props.liveTrades && props.liveTrades.length)
+        ? props.liveTrades
+        : JSON.parse(localStorage.getItem('bj_trades') || '[]');
+      if (!source.length) { addToast('No live trades found', 'err'); return; }
+      saveMock(JSON.parse(JSON.stringify(source)));
+      setActiveTab('timemachine');
+      addToast('Live Ledger cloned — ' + source.length + ' trades loaded', 'ok');
     }
 
     // Process trades and join with metadata
@@ -138,7 +146,7 @@
 
     var statsData = useMemo(function() {
       return enrichedMockTrades.map(function(t) {
-        var id = t.ticker + '-' + t.date + '-' + t.type + '-' + t.price;
+        var id = getTradeId(t);
         var meta = tradeMeta[id] || {};
         
         if (t.type === 'SELL') {
@@ -147,7 +155,7 @@
               return bt.ticker === t.ticker && bt.type === 'BUY' && bt.date <= t.date;
             });
             for (var i = buyTrades.length - 1; i >= 0; i--) {
-              var bid = buyTrades[i].ticker + '-' + buyTrades[i].date + '-' + buyTrades[i].type + '-' + buyTrades[i].price;
+              var bid = getTradeId(buyTrades[i]);
               var bmeta = tradeMeta[bid];
               if (bmeta && (bmeta.setup_type || bmeta.emotional_state)) {
                 meta = Object.assign({}, bmeta, meta);
@@ -161,7 +169,7 @@
     }, [enrichedMockTrades, tradeMeta]);
 
     function handleSelectForensics(t) {
-      var id = t.ticker + '-' + t.date + '-' + t.type + '-' + t.price;
+      var id = getTradeId(t);
       localStorage.setItem('bj_active_forensics_id', id);
       setActiveForensicsId(id);
       setActiveTab('forensics');
@@ -169,9 +177,23 @@
 
     // Forensics fields states
     var activeTrade = useMemo(function() {
-      return mockTrades.find(function(t) {
-        return (t.ticker + '-' + t.date + '-' + t.type + '-' + t.price) === activeForensicsId;
+      if (!activeForensicsId) return null;
+      var found = mockTrades.find(function(t) {
+        return getTradeId(t) === activeForensicsId;
       });
+      if (found) return found;
+      var parts = activeForensicsId.split('-');
+      if (parts.length >= 4) {
+        return {
+          ticker: parts[0],
+          date: parts[1],
+          type: parts[2],
+          price: parseFloat(parts[3]) || 0,
+          qty: 0,
+          exchange: 'PSE'
+        };
+      }
+      return null;
     }, [mockTrades, activeForensicsId]);
 
     var activeMeta = useMemo(function() {
@@ -198,78 +220,83 @@
 
     // Patterns calculations
     var taggedCount = useMemo(function() {
-      return Object.keys(tradeMeta).filter(function(id) {
-        var m = tradeMeta[id];
-        return m && m.entry_reason && m.what_went_wrong;
-      }).length;
+      var count = 0;
+      Object.keys(tradeMeta).forEach(function(k) {
+        if (tradeMeta[k] && tradeMeta[k].entry_reason) count++;
+      });
+      return count;
     }, [tradeMeta]);
 
     var patternsMetrics = useMemo(function() {
-      if (taggedCount < 5) return null;
-
-      var setups = { trend_follow: { w: 0, t: 0 }, reversal: { w: 0, t: 0 }, breakout: { w: 0, t: 0 }, scalp: { w: 0, t: 0 }, news: { w: 0, t: 0 } };
-      var emotions = { calm: { w: 0, t: 0 }, rushed: { w: 0, t: 0 }, fomo: { w: 0, t: 0 }, revenge: { w: 0, t: 0 }, confident: { w: 0, t: 0 } };
-      var times = { morning: { w: 0, t: 0 }, afternoon: { w: 0, t: 0 }, night: { w: 0, t: 0 } };
-      var markets = { PSE: { w: 0, t: 0 }, NASDAQ: { w: 0, t: 0 }, FOREX: { w: 0, t: 0 }, CRYPTO: { w: 0, t: 0 } };
-      
-      var plannedRRs = [];
-      var actualRRs = [];
+      var setups = { trend_follow: {w:0, t:0}, reversal: {w:0, t:0}, breakout: {w:0, t:0}, scalp: {w:0, t:0}, news: {w:0, t:0} };
+      var emotions = { calm: {w:0, t:0}, rushed: {w:0, t:0}, fomo: {w:0, t:0}, revenge: {w:0, t:0}, confident: {w:0, t:0} };
+      var times = { morning: {w:0, t:0}, afternoon: {w:0, t:0}, other: {w:0, t:0} };
+      var markets = { PSE: {w:0, t:0}, NASDAQ: {w:0, t:0}, NYSE: {w:0, t:0}, CRYPTO: {w:0, t:0}, FOREX: {w:0, t:0} };
       var losingTags = {};
+      var plannedRRs = [], actualRRs = [];
 
       statsData.forEach(function(sd) {
         var t = sd.trade;
         var m = sd.meta;
-        var win = t.pnl > 0;
+        if (!m.entry_reason) return; // Only process tagged trades
+        
+        var isWin = t.pnl > 0;
+        
+        // Setup Win Rate
+        if (setups[m.setup_type]) {
+          setups[m.setup_type].t++;
+          if (isWin) setups[m.setup_type].w++;
+        }
+        
+        // Emotion Win Rate
+        if (emotions[m.emotional_state]) {
+          emotions[m.emotional_state].t++;
+          if (isWin) emotions[m.emotional_state].w++;
+        }
+        
+        // Time win rate
+        var hr = parseInt((t.time || '00:00').split(':')[0]) || 0;
+        var timeSlot = hr < 12 ? 'morning' : hr < 16 ? 'afternoon' : 'other';
+        times[timeSlot].t++;
+        if (isWin) times[timeSlot].w++;
+        
+        // Market win rate
+        var ex = t.exchange || 'PSE';
+        if (markets[ex]) {
+          markets[ex].t++;
+          if (isWin) markets[ex].w++;
+        }
 
-        if (t.type === 'SELL') {
-          // Setup
-          if (m.setup_type && setups[m.setup_type]) {
-            setups[m.setup_type].t++;
-            if (win) setups[m.setup_type].w++;
-          }
-          // Emotion
-          if (m.emotional_state && emotions[m.emotional_state]) {
-            emotions[m.emotional_state].t++;
-            if (win) emotions[m.emotional_state].w++;
-          }
-          // Session / Time of day
-          if (t.time) {
-            var hour = parseInt(t.time.split(':')[0]) || 0;
-            var session = 'night';
-            if (hour >= 9 && hour < 12) session = 'morning';
-            else if (hour >= 12 && hour < 16) session = 'afternoon';
-            times[session].t++;
-            if (win) times[session].w++;
-          }
-          // Market
-          var mkt = t.exchange === 'NYSE' ? 'NASDAQ' : (t.exchange || 'PSE');
-          if (markets[mkt]) {
-            markets[mkt].t++;
-            if (win) markets[mkt].w++;
-          }
-          // Tags on losses
-          if (!win && m.lesson_tags) {
-            m.lesson_tags.forEach(function(tag) {
-              losingTags[tag] = (losingTags[tag] || 0) + 1;
-            });
-          }
-
-          // planned vs actual R:R
-          var buyT = enrichedMockTrades.find(function(bt) {
-            return bt.ticker === t.ticker && bt.type === 'BUY' && bt.date <= t.date;
-          });
-          if (buyT && buyT.stopLoss > 0 && buyT.takeProfit > 0) {
-            var plannedRisk = Math.abs(buyT.price - buyT.stopLoss);
-            var plannedReward = Math.abs(buyT.takeProfit - buyT.price);
-            if (plannedRisk > 0) {
-              plannedRRs.push(plannedReward / plannedRisk);
-              actualRRs.push((t.price - buyT.price) / plannedRisk);
+        // R:R averages
+        if (t.stopLoss && t.takeProfit) {
+          var entry = parseFloat(t.price);
+          var sl = parseFloat(t.stopLoss);
+          var tp = parseFloat(t.takeProfit);
+          var isBuy = t.type === 'BUY';
+          var risk = isBuy ? (entry - sl) : (sl - entry);
+          var reward = isBuy ? (tp - entry) : (entry - tp);
+          if (risk > 0) {
+            plannedRRs.push(reward / risk);
+            
+            // If closed trade, compute actual RR
+            if (t.pnl !== 0) {
+              actualRRs.push(t.pnl / (risk * t.qty * (E.toPHP ? E.toPHP(1, ex, fxRate) : 1)));
             }
           }
         }
+
+        // Common losing tags
+        if (!isWin) {
+          (m.lesson_tags || []).forEach(function(tag) {
+            losingTags[tag] = (losingTags[tag] || 0) + 1;
+          });
+        }
       });
 
-      function avg(arr) { return arr.length ? arr.reduce(function(s, v){ return s+v; }, 0) / arr.length : 0; }
+      function avg(arr) {
+        if (!arr.length) return 0;
+        return arr.reduce(function(sum, val){ return sum + val; }, 0) / arr.length;
+      }
 
       return {
         setups: setups,
@@ -284,10 +311,6 @@
 
     // AI Review action
     function triggerAiReview(scope) {
-      if (!apiKey) {
-        addToast('Anthropic API Key is required.', 'err');
-        return;
-      }
       setAiLoading(true);
       setAiOutput('Initializing coach critique...');
       
@@ -302,63 +325,33 @@
         targetData = mockEnriched;
       }
 
-      var sysPrompt = "You are a ruthless but constructive trading coach. Analyze this trader's data and identify: (1) top 3 recurring mistakes with specific evidence, (2) which setups are actually profitable vs which they should stop doing, (3) one specific rule they must add to their system immediately. Be direct. No fluff. Use bullet points. Reference specific trades.";
+      var promptText = "Review this trading session data:\n" + JSON.stringify(targetData, null, 2);
 
-      fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerously-allow-browser": "true"
-        },
-        body: JSON.stringify({
-          model: "claude-3-5-sonnet-20241022",
-          max_tokens: 1000,
-          stream: true,
-          system: sysPrompt,
-          messages: [
-            { role: "user", content: "Review this trading session data:\n" + JSON.stringify(targetData, null, 2) }
-          ]
-        })
-      }).then(async function(response) {
+      fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: promptText }] })
+      }).then(function(response) {
         if (!response.ok) {
-          var err = await response.json().catch(function() { return {}; });
-          throw new Error(err.error?.message || "HTTP Error " + response.status);
-        }
-        setAiOutput('');
-        setAiLoading(false);
-        var reader = response.body.getReader();
-        var decoder = new TextDecoder("utf-8");
-        var buffer = "";
-
-        function read() {
-          return reader.read().then(function(chunk) {
-            if (chunk.done) return;
-            buffer += decoder.decode(chunk.value, { stream: true });
-            var lines = buffer.split("\n");
-            buffer = lines.pop();
-            lines.forEach(function(line) {
-              var tr = line.trim();
-              if (tr.indexOf("data:") === 0) {
-                var jsonStr = tr.slice(5).trim();
-                if (jsonStr) {
-                  try {
-                    var d = JSON.parse(jsonStr);
-                    if (d.type === "content_block_delta" && d.delta && d.delta.text) {
-                      setAiOutput(function(prev) { return prev + d.delta.text; });
-                    }
-                  } catch(e){}
-                }
-              }
-            });
-            return read();
+          return response.text().then(function(txt) {
+            var errMsg = 'HTTP Error ' + response.status;
+            try { var parsed = JSON.parse(txt); errMsg = (parsed.error && parsed.error.message) || errMsg; } catch(e) {}
+            throw new Error(errMsg);
           });
         }
-        return read();
+        return response.json();
+      }).then(function(data) {
+        setAiLoading(false);
+        if (data && data.content && data.content.length > 0) {
+          var text = data.content.map(function(block) { return block.text || ''; }).join('');
+          setAiOutput(text);
+        } else {
+          setAiOutput('No response received from coach.');
+        }
       }).catch(function(err) {
         setAiLoading(false);
-        addToast("Coach Review Failed: " + err.message, "err");
+        setAiOutput('');
+        addToast('Coach Review Failed: ' + err.message, 'err');
       });
     }
 
@@ -419,7 +412,6 @@
             h('span', { className: 'sec-hd tm', style: { fontSize: 11, color: '#a78bfa' } }, 'Trades Executed Today'),
             tradesExecutedToday.length === 0 ? h('span', { className: 'tf', style: { fontSize: 9.5, color: '#5a6472' } }, 'No mock trades executed today.') :
             tradesExecutedToday.map(function(t, idx) {
-              var tid = t.ticker + '-' + t.date + '-' + t.type + '-' + t.price;
               return h('div', {
                 key: idx,
                 onClick: function() { handleSelectForensics(t); },
@@ -450,7 +442,7 @@
             h('span', { className: 'sec-hd tm', style: { fontSize: 10.5, display: 'block', marginBottom: 12, color: '#a78bfa' } }, 'All Mock Trades'),
             mockTrades.length === 0 ? h('span', { className: 'tf', style: { fontSize: 9.5, color: '#5a6472' } }, 'No mock trades available.') :
             mockTrades.map(function(t) {
-              var tid = t.ticker + '-' + t.date + '-' + t.type + '-' + t.price;
+              var tid = getTradeId(t);
               var isCurrent = activeForensicsId === tid;
               var isSaved = !!(tradeMeta[tid] && tradeMeta[tid].entry_reason);
               return h('div', {
@@ -482,12 +474,13 @@
           ),
           /* Right Editor Panel */
           h('div', { style: { flex: 1, padding: 20, overflowY: 'auto', background: 'rgba(0,0,0,0.05)' } },
-            !activeTrade ? h('div', { style: { height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5a6472', fontSize: 11 } }, 'Select a trade from the left panel to begin forensics analysis.') :
+            !activeForensicsId ? h('div', { style: { height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5a6472', fontSize: 11 } }, 'Select a trade from the left panel to begin forensics analysis.') :
+            !activeTrade ? h('div', { style: { height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5a6472', fontSize: 11 } }, 'Trade details could not be parsed.') :
             h('div', { style: { maxWidth: 650, display: 'flex', flexDirection: 'column', gap: 16 } },
               h('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 10 } },
                 h('div', null,
                   h('h3', { style: { margin: 0, fontSize: 14, color: activeTrade.type === 'BUY' ? '#6ee7b7' : '#f43f5e' } }, activeTrade.type + ' ' + activeTrade.ticker),
-                  h('span', { style: { fontSize: 9.5, color: '#8e9aa8' } }, activeTrade.date + ' ' + activeTrade.time + ' · ' + f0(activeTrade.qty) + ' shares @ ' + S(activeTrade.exchange) + f2(activeTrade.price))
+                  h('span', { style: { fontSize: 9.5, color: '#8e9aa8' } }, activeTrade.date + ' ' + (activeTrade.time || '') + ' · ' + f0(activeTrade.qty) + ' shares @ ' + S(activeTrade.exchange) + f2(activeTrade.price))
                 ),
                 h('div', null,
                   h('span', { style: { fontSize: 8, color: '#5a6472', marginRight: 6 } }, 'PROCESS RATING:'),
@@ -732,19 +725,6 @@
         ),
 
         activeTab === 'ai' && h('div', { style: { height: '100%', display: 'flex', flexDirection: 'column', padding: 20, gap: 16 } },
-          /* Anthropic API Key input */
-          h('div', { style: { display: 'flex', alignItems: 'center', gap: 12, padding: 12, background: 'rgba(255,255,255,0.02)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.05)', flexShrink: 0 } },
-            h('span', { className: 'tm', style: { fontSize: 10, color: '#8e9aa8' } }, 'Anthropic API Key:'),
-            h('input', {
-              type: 'password',
-              className: 'inp',
-              style: { width: 260, height: 26, fontSize: 10 },
-              value: apiKey,
-              onChange: function(e) { setApiKey(e.target.value); localStorage.setItem('bj_anthropic_key', e.target.value); },
-              placeholder: 'sk-ant-...'
-            }),
-            h('span', { style: { fontSize: 8.5, color: '#5a6472' } }, 'Stored locally in browser.')
-          ),
           /* Actions row */
           h('div', { style: { display: 'flex', gap: 10, flexShrink: 0 } },
             [
@@ -881,7 +861,7 @@
         h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } },
           h(C.IcTrend), h('span', { className: "sec-hd tm", style: { fontSize: 11 } }, "STRATEGY QUEUE / AUDIT LOG")
         ),
-        auditLog.length === 0 ? h('div', { style: { height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }, className: "tf" }, "Queue steps to see impact.") :
+        auditLog.length === 0 ? h('div', { style: { height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', className: "tf" }, className: "tf" }, "Queue steps to see impact.") :
           h('table', { className: "tbl" },
             h('thead', null, h('tr', null, h('th', { className: "th" }, "Step"), h('th', { className: "th" }, "Side"), h('th', { className: "th" }, "Price"), h('th', { className: "th" }, "Qty"), h('th', { className: "th" }, "Result Qty"), h('th', { className: "th" }, "Result Avg"))),
             h('tbody', null, auditLog.map(function(l, idx){
