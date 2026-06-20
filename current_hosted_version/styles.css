@@ -338,10 +338,6 @@ body.dark .inset {
 }
 
 
-body.dark .hud-bar {
-  background: #13141b;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
 
 body.dark .inp {
   background: rgba(255, 255, 255, 0.035);
@@ -736,11 +732,6 @@ body.light .inset {
 }
 
 
-body.light .hud-bar {
-  background: rgba(255, 255, 255, 0.80);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 body.light .inp {
@@ -1514,30 +1505,10 @@ body.light .tag-loss {
 }
 
 /* ── HUD accent colours ── */
-.hud-emerald {
-  color: #10b981 !important;
-  text-shadow: 0 0 20px rgba(199, 226, 247, .55);
-}
 
-.hud-rose {
-  color: #f43f5e !important;
-  text-shadow: 0 0 20px rgba(90, 100, 114, .55);
-}
 
-.hud-blue {
-  color: #3b82f6 !important;
-  text-shadow: 0 0 20px rgba(59, 130, 246, .55);
-}
 
-.hud-violet {
-  color: #8b5cf6 !important;
-  text-shadow: 0 0 20px rgba(139, 92, 246, .55);
-}
 
-.hud-amber {
-  color: #f59e0b !important;
-  text-shadow: 0 0 20px rgba(245, 158, 11, .45);
-}
 
 /* ── Capital Recovery bar (V1.2.7 → V1.5.0) ── */
 .rcv-bar {
@@ -1873,38 +1844,6 @@ body.light .mock-banner {
 }
 
 /* ── HUD Bar ──────────────────────────────────────────── */
-.hud-bar {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  background: rgba(255,255,255,0.02);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  overflow-x: auto;
-  flex-shrink: 0;
-}
-.hud-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px 16px;
-  border-right: 1px solid rgba(255,255,255,0.04);
-  min-width: 110px;
-  flex-shrink: 0;
-}
-.hud-label {
-  font-size: 7px;
-  color: #334155;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  font-family: 'JetBrains Mono', monospace;
-}
-.hud-value {
-  font-size: 11px;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
-  color: #94a3b8;
-}
-
 /* ── Equity Curve ─────────────────────────────────────── */
 .equity-curve-wrap { position: relative; width: 100%; }
 .equity-curve-wrap svg { display: block; }
