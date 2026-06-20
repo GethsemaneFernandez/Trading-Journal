@@ -129,14 +129,43 @@
 
     function cloneLive() {
       if (!window.confirm('Clone all live trades to Study Lab?')) return;
-      console.log('[cloneLive]', props.liveTrades);
+      console.log('[cloneLive] props.liveTrades:', props.liveTrades);
+
+      // Step 1: try prop
       var source = (props.liveTrades && props.liveTrades.length)
-        ? props.liveTrades
-        : JSON.parse(localStorage.getItem('bj_trades') || '[]');
-      if (!source.length) { addToast('No live trades found', 'err'); return; }
+        ? props.liveTrades : null;
+
+      // Step 2: try every known key variant (E.K.t = 'bj15_t' is the real key)
+      if (!source || !source.length) {
+        var candidates = [
+          (E.K && E.K.t),
+          (E.K && E.K.trades),
+          'bj15_t',
+          'bj_trades',
+          'trades',
+          'bj_t'
+        ];
+        for (var i = 0; i < candidates.length; i++) {
+          if (!candidates[i]) continue;
+          try {
+            var parsed = JSON.parse(localStorage.getItem(candidates[i]) || '[]');
+            if (parsed && parsed.length) {
+              console.log('[cloneLive] found trades in key:', candidates[i], '— count:', parsed.length);
+              source = parsed;
+              break;
+            }
+          } catch(e) {}
+        }
+      }
+
+      if (!source || !source.length) {
+        addToast('No live trades found — check localStorage key', 'err');
+        return;
+      }
+
       saveMock(JSON.parse(JSON.stringify(source)));
       setActiveTab('timemachine');
-      addToast('Live Ledger cloned — ' + source.length + ' trades loaded', 'ok');
+      addToast('Cloned ' + source.length + ' trades to Study Lab', 'ok');
     }
 
     // Process trades and join with metadata
@@ -342,6 +371,13 @@
         return response.json();
       }).then(function(data) {
         setAiLoading(false);
+        // Check for error object first (Anthropic errors or missing key)
+        if (data && data.error) {
+          var errMsg = typeof data.error === 'string' ? data.error : (data.error.message || JSON.stringify(data.error));
+          addToast('Coach Error: ' + errMsg, 'err');
+          setAiOutput('\u26a0 ' + errMsg);
+          return;
+        }
         if (data && data.content && data.content.length > 0) {
           var text = data.content.map(function(block) { return block.text || ''; }).join('');
           setAiOutput(text);
