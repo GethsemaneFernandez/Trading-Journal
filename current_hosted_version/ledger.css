@@ -1,0 +1,183 @@
+/* ═══════════════════════════════════════════════
+   Basic Journal — Ledger & Trade Table
+   Extracted from styles.css
+   Original line ranges: 405-409, 411-413, 415-417, 419-422, 630-632, 787-791, 793-795, 797-799, 801-804, 1004-1006, 1204-1214, 1216-1220, 1222-1226, 1240-1244, 1246-1250, 1258-1260, 1262-1264, 1266-1268, 1270-1272, 1274-1277, 1279-1292, 1294-1297, 1709-1712, 1782-1786, 1890-1894, 1895-1900, 1901, 1902-1912, 1943-1957, 1958
+   Shared classes NOT extracted: .tag-dep, .tag-wdw, .tag-sim (used in Wallet)
+═══════════════════════════════════════════════ */
+
+body.dark .th {
+  color: rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.65);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body.dark .tr-h:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+body.dark .tdb {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+body.dark .lot-row td {
+  background: rgba(199, 226, 247, 0.025) !important;
+  border-bottom: 1px solid rgba(199, 226, 247, 0.07) !important;
+}
+
+body.dark .perf-sep {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body.light .th {
+  color: rgba(15, 23, 42, 0.60);
+  background: #f1f5f9;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.10);
+}
+
+body.light .tr-h:hover td {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.light .tdb {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body.light .lot-row td {
+  background: rgba(199, 226, 247, 0.05) !important;
+  border-bottom: 1px solid rgba(199, 226, 247, 0.12) !important;
+}
+
+body.light .perf-sep {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  border: 1px solid;
+}
+
+.tag-buy {
+  background: rgba(199, 226, 247, .12);
+  color: #10b981;
+  border-color: rgba(199, 226, 247, .25);
+}
+
+.tag-sell {
+  background: rgba(90, 100, 114, .12);
+  color: #f43f5e;
+  border-color: rgba(90, 100, 114, .25);
+}
+
+.tag-win {
+  background: rgba(199, 226, 247, .12);
+  color: #10b981;
+  border-color: rgba(199, 226, 247, .25);
+}
+
+.tag-loss {
+  background: rgba(90, 100, 114, .12);
+  color: #f43f5e;
+  border-color: rgba(90, 100, 114, .25);
+}
+
+body.light .tag-buy {
+  color: #059669;
+}
+
+body.light .tag-sell {
+  color: #334155;
+}
+
+body.light .tag-win {
+  color: #059669;
+}
+
+body.light .tag-loss {
+  color: #334155;
+}
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.th {
+  font-family: 'Inter', sans-serif;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  text-align: left;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(20px);
+  z-index: 2;
+}
+
+.td {
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+.lot-in {
+  animation: lot-in .2s ease both;
+}
+
+.tag-fx {
+  background: rgba(6, 182, 212, .12);
+  color: #06b6d4;
+  border-color: rgba(6, 182, 212, .25);
+}
+
+.perf-hub {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.perf-hub-cell {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.perf-hub-cell.full { grid-column: 1 / -1; }
+.perf-hub-title {
+  font-size: 8px;
+  color: #475569;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.thesis-box {
+  width: 100%;
+  min-height: 80px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 10px;
+  color: #94a3b8;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  resize: vertical;
+  outline: none;
+  line-height: 1.5;
+  transition: border-color 0.15s;
+}
+
+.thesis-box:focus { border-color: rgba(199,226,247,0.3); }
