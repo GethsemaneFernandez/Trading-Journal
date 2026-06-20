@@ -1,0 +1,218 @@
+/* ═══════════════════════════════════════════════
+   Basic Journal — Navbar & Tab Bar
+   Extracted from styles.css
+   Original line ranges: 340-344, 392-408, 536-563, 780-785, 825-839, 962-986, 1248-1273, 1476-1498, 1700-1739, 1789-1802, 1997-2009
+   Shared classes NOT extracted: .tp, .tf, .tm, .ts, .mono, .btn, .ghost, .ic, .blink (used globally for typography, buttons, and layout)
+═══════════════════════════════════════════════ */
+
+body.dark .nav-bar {
+  background: #0d0e14;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+body.dark .nl {
+  color: rgba(255, 255, 255, 0.33);
+}
+
+body.dark .nl:hover {
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark .nl.on {
+  color: #fff;
+  background: rgba(199, 226, 247, 0.12);
+  border-color: rgba(199, 226, 247, 0.28);
+  text-shadow: 0 0 12px rgba(199, 226, 247, 0.6);
+  box-shadow: 0 0 10px rgba(199, 226, 247, 0.15);
+}
+
+body.dark .sc-pill {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+body.dark .sc-opt {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+body.dark .sc-opt.on {
+  background: rgba(199, 226, 247, 0.18);
+  color: var(--emerald);
+  box-shadow: 0 0 7px rgba(199, 226, 247, 0.18);
+}
+
+body.dark .fee-on {
+  background: rgba(199, 226, 247, 0.12);
+  border: 1px solid rgba(199, 226, 247, 0.28);
+  color: var(--emerald);
+  box-shadow: 0 0 8px rgba(199, 226, 247, 0.16);
+}
+
+body.dark .fee-off {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: rgba(255, 255, 255, 0.34);
+}
+
+body.light .nav-bar {
+  background: rgba(255, 255, 255, 0.60);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+body.light .nl {
+  color: rgba(15, 23, 42, 0.60);
+}
+
+body.light .nl:hover {
+  color: #0f172a;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.light .nl.on {
+  color: #0c4a6e;
+  background: rgba(199, 226, 247, 0.20);
+  border-color: rgba(199, 226, 247, 0.40);
+}
+
+body.light .sc-pill {
+  background: rgba(255, 255, 255, 0.50);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+}
+
+body.light .sc-opt {
+  color: rgba(15, 23, 42, 0.50);
+}
+
+body.light .sc-opt.on {
+  background: rgba(199, 226, 247, 0.20);
+  color: #0c4a6e;
+}
+
+body.light .fee-on {
+  background: rgba(199, 226, 247, 0.15);
+  border: 1px solid rgba(199, 226, 247, 0.30);
+  color: #0c4a6e;
+}
+
+body.light .fee-off {
+  background: rgba(255, 255, 255, 0.50);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: rgba(15, 23, 42, 0.60);
+}
+
+.nl {
+  padding: 5px 12px;
+  border-radius: .5rem;
+  font-size: var(--fz-sm);
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  transition: all .25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nl:hover {
+  background: rgba(199, 226, 247, 0.08);
+  transform: translateY(-1px);
+}
+
+.nl:active {
+  transform: scale(0.95);
+}
+
+.sc-pill {
+  display: flex;
+  gap: 2px;
+  border-radius: .5rem;
+  padding: 2px;
+}
+
+.sc-opt {
+  border: none;
+  border-radius: .35rem;
+  padding: 3px 7px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  transition: all .15s;
+  background: transparent;
+}
+
+.usd-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: .45rem;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  transition: all .18s;
+  border: 1px solid;
+}
+
+body.dark .usd-toggle {
+  background: rgba(59, 130, 246, .08);
+  border-color: rgba(59, 130, 246, .22);
+  color: rgba(59, 130, 246, .65);
+}
+
+body.dark .usd-toggle.on {
+  background: rgba(59, 130, 246, .22);
+  border-color: rgba(59, 130, 246, .48);
+  color: #60a5fa;
+  box-shadow: 0 0 12px rgba(59, 130, 246, .22);
+}
+
+body.light .usd-toggle {
+  background: rgba(59, 130, 246, .06);
+  border-color: rgba(59, 130, 246, .18);
+  color: #1d4ed8;
+}
+
+body.light .usd-toggle.on {
+  background: rgba(59, 130, 246, .14);
+  border-color: rgba(59, 130, 246, .35);
+  color: #1d4ed8;
+}
+
+.refresh-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  padding: 3px 9px;
+  border-radius: .4rem;
+  cursor: pointer;
+  transition: all .18s;
+}
+
+.refresh-btn.loading {
+  opacity: .55;
+  cursor: wait;
+  pointer-events: none;
+}
+
+body.dark .usd-toggle.on {
+  background: rgba(59, 130, 246, .22);
+  border-color: rgba(59, 130, 246, .48);
+  color: #60a5fa;
+  box-shadow: 0 0 12px rgba(59, 130, 246, .22);
+}
+
+body.light .usd-toggle.on {
+  background: rgba(59, 130, 246, .14);
+  border-color: rgba(59, 130, 246, .35);
+  color: #1d4ed8;
+}
