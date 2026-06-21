@@ -485,15 +485,7 @@ body.dark .drag-h:hover,
   box-shadow: 0 0 12px rgba(199, 226, 247, 0.32);
 }
 
-body.dark .sim-card {
-  background: rgba(59, 130, 246, 0.04);
-  border: 1px solid rgba(59, 130, 246, 0.16);
-}
 
-body.dark .sim-stack {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
 
 
 
@@ -846,15 +838,7 @@ body.light .drag-h:hover,
   background: rgba(199, 226, 247, 0.60) !important;
 }
 
-body.light .sim-card {
-  background: rgba(199, 226, 247, 0.08);
-  border: 1px solid rgba(199, 226, 247, 0.25);
-}
 
-body.light .sim-stack {
-  background: rgba(255, 255, 255, 0.50);
-  border: 1px solid rgba(0, 0, 0, 0.10);
-}
 
 
 
@@ -1637,22 +1621,8 @@ body.light .bar-chart-axis {
 }
 
 /* ── V1.5.1: Study Lab panel ─────────────────────────────── */
-.study-lab-hud {
-  flex-shrink: 0;
-  border-bottom: 1px solid rgba(139, 92, 246, 0.18);
-  display: flex;
-  align-items: center;
-  gap: 12;
-  padding: 8px var(--pad);
-}
 
-body.dark .study-lab-hud {
-  background: rgba(139, 92, 246, 0.06);
-}
 
-body.light .study-lab-hud {
-  background: rgba(139, 92, 246, 0.04);
-}
 
 /* mock trade form banner */
 .mock-banner {
@@ -1779,62 +1749,9 @@ body.light .mock-banner {
 /* ── Performance Hub (Ledger Tab) ─────────────────────── */
 
 /* ── Study Lab ────────────────────────────────────────── */
-.scenario-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  overflow-y: auto;
-}
-.scenario-card {
-  background: rgba(255,255,255,0.025);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 8px;
-  padding: 10px 12px;
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
-}
-.scenario-card:hover { border-color: rgba(199,226,247,0.2); background: rgba(255,255,255,0.04); }
-.scenario-card.active { border-color: rgba(199,226,247,0.35); background: rgba(199,226,247,0.04); }
-.scenario-name {
-  font-size: 10px;
-  font-weight: 700;
-  color: #c7e2f7;
-  font-family: 'JetBrains Mono', monospace;
-  margin-bottom: 3px;
-}
-.scenario-meta {
-  font-size: 8px;
-  color: #475569;
-  font-family: 'JetBrains Mono', monospace;
 }
 
 /* ── Sim HUD ──────────────────────────────────────────── */
-.sim-hud {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  margin-bottom: 12px;
-}
-.sim-hud-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 90px;
-}
-.sim-hud-label {
-  font-size: 7px;
-  color: #334155;
-  letter-spacing: .07em;
-  font-family: 'JetBrains Mono', monospace;
-}
-.sim-hud-value {
-  font-size: 11px;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
-  color: #c7e2f7;
-}
 
 /* ── Toast animation ──────────────────────────────────── */
 @keyframes fadeSlideIn {
