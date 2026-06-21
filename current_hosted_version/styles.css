@@ -402,24 +402,9 @@ body.dark .ic.on {
   box-shadow: 0 0 10px rgba(199, 226, 247, 0.18);
 }
 
-body.dark .th {
-  color: rgba(255, 255, 255, 0.18);
-  background: rgba(0, 0, 0, 0.65);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
 
-body.dark .tr-h:hover td {
-  background: rgba(255, 255, 255, 0.02);
-}
 
-body.dark .tdb {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
 
-body.dark .lot-row td {
-  background: rgba(199, 226, 247, 0.025) !important;
-  border-bottom: 1px solid rgba(199, 226, 247, 0.07) !important;
-}
 
 body.dark .seg-w {
   background: rgba(0, 0, 0, 0.50);
@@ -500,15 +485,7 @@ body.dark .drag-h:hover,
   box-shadow: 0 0 12px rgba(199, 226, 247, 0.32);
 }
 
-body.dark .sim-card {
-  background: rgba(59, 130, 246, 0.04);
-  border: 1px solid rgba(59, 130, 246, 0.16);
-}
 
-body.dark .sim-stack {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
 
 
 
@@ -627,9 +604,6 @@ body.dark .src-bar-track {
   border-radius: 99px;
 }
 
-body.dark .perf-sep {
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
 
 body.dark .rcv-track {
   background: rgba(255, 255, 255, 0.07);
@@ -784,24 +758,9 @@ body.light .ic.on {
   background: rgba(199, 226, 247, 0.15);
 }
 
-body.light .th {
-  color: rgba(15, 23, 42, 0.60);
-  background: #f1f5f9;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.10);
-}
 
-body.light .tr-h:hover td {
-  background: rgba(0, 0, 0, 0.03);
-}
 
-body.light .tdb {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
 
-body.light .lot-row td {
-  background: rgba(199, 226, 247, 0.05) !important;
-  border-bottom: 1px solid rgba(199, 226, 247, 0.12) !important;
-}
 
 body.light .seg-w {
   background: rgba(255, 255, 255, 0.60);
@@ -879,15 +838,7 @@ body.light .drag-h:hover,
   background: rgba(199, 226, 247, 0.60) !important;
 }
 
-body.light .sim-card {
-  background: rgba(199, 226, 247, 0.08);
-  border: 1px solid rgba(199, 226, 247, 0.25);
-}
 
-body.light .sim-stack {
-  background: rgba(255, 255, 255, 0.50);
-  border: 1px solid rgba(0, 0, 0, 0.10);
-}
 
 
 
@@ -1001,9 +952,6 @@ body.light .src-bar-track {
   border-radius: 99px;
 }
 
-body.light .perf-sep {
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-}
 
 body.light .rcv-track {
   background: rgba(0, 0, 0, 0.09);
@@ -1201,29 +1149,8 @@ textarea.inp {
   text-transform: uppercase;
 }
 
-.tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 7px;
-  border-radius: 9999px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8.5px;
-  font-weight: 700;
-  letter-spacing: .07em;
-  border: 1px solid;
-}
 
-.tag-buy {
-  background: rgba(199, 226, 247, .12);
-  color: #10b981;
-  border-color: rgba(199, 226, 247, .25);
-}
 
-.tag-sell {
-  background: rgba(90, 100, 114, .12);
-  color: #f43f5e;
-  border-color: rgba(90, 100, 114, .25);
-}
 
 .tag-dep {
   background: rgba(59, 130, 246, .12);
@@ -1237,17 +1164,7 @@ textarea.inp {
   border-color: rgba(251, 191, 36, .25);
 }
 
-.tag-win {
-  background: rgba(199, 226, 247, .12);
-  color: #10b981;
-  border-color: rgba(199, 226, 247, .25);
-}
 
-.tag-loss {
-  background: rgba(90, 100, 114, .12);
-  color: #f43f5e;
-  border-color: rgba(90, 100, 114, .25);
-}
 
 .tag-sim {
   background: rgba(139, 92, 246, .12);
@@ -1255,46 +1172,12 @@ textarea.inp {
   border-color: rgba(139, 92, 246, .25);
 }
 
-body.light .tag-buy {
-  color: #059669;
-}
 
-body.light .tag-sell {
-  color: #334155;
-}
 
-body.light .tag-win {
-  color: #059669;
-}
 
-body.light .tag-loss {
-  color: #334155;
-}
 
-.tbl {
-  width: 100%;
-  border-collapse: collapse;
-}
 
-.th {
-  font-family: 'Inter', sans-serif;
-  font-size: 8.5px;
-  font-weight: 700;
-  letter-spacing: .10em;
-  text-transform: uppercase;
-  padding: 8px 12px;
-  text-align: left;
-  white-space: nowrap;
-  position: sticky;
-  top: 0;
-  backdrop-filter: blur(20px);
-  z-index: 2;
-}
 
-.td {
-  padding: 8px 12px;
-  white-space: nowrap;
-}
 
 .abar {
   height: 3px;
@@ -1706,10 +1589,6 @@ body.light .bar-chart-axis {
   }
 }
 
-.lot-in {
-  animation: lot-in .2s ease both;
-}
-
 @keyframes bar-fill {
   from {
     width: 0
@@ -1742,22 +1621,8 @@ body.light .bar-chart-axis {
 }
 
 /* ── V1.5.1: Study Lab panel ─────────────────────────────── */
-.study-lab-hud {
-  flex-shrink: 0;
-  border-bottom: 1px solid rgba(139, 92, 246, 0.18);
-  display: flex;
-  align-items: center;
-  gap: 12;
-  padding: 8px var(--pad);
-}
 
-body.dark .study-lab-hud {
-  background: rgba(139, 92, 246, 0.06);
-}
 
-body.light .study-lab-hud {
-  background: rgba(139, 92, 246, 0.04);
-}
 
 /* mock trade form banner */
 .mock-banner {
@@ -1779,11 +1644,6 @@ body.light .mock-banner {
 }
 
 /* ── V1.5.1: FOREX FX pill (already using tag-sim, alias added) */
-.tag-fx {
-  background: rgba(6, 182, 212, .12);
-  color: #06b6d4;
-  border-color: rgba(6, 182, 212, .25);
-}
 
 /* ── Geist Mono forced on price/numeric values ── */
 .price-mono {
@@ -1887,103 +1747,11 @@ body.light .mock-banner {
 .asset-weight-segment { transition: width 0.4s ease; height: 100%; }
 
 /* ── Performance Hub (Ledger Tab) ─────────────────────── */
-.perf-hub {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.perf-hub-cell {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 10px;
-  padding: 14px;
-}
-.perf-hub-cell.full { grid-column: 1 / -1; }
-.perf-hub-title {
-  font-size: 8px;
-  color: #475569;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  font-family: 'JetBrains Mono', monospace;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
 
 /* ── Study Lab ────────────────────────────────────────── */
-.scenario-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  overflow-y: auto;
 }
-.scenario-card {
-  background: rgba(255,255,255,0.025);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 8px;
-  padding: 10px 12px;
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
-}
-.scenario-card:hover { border-color: rgba(199,226,247,0.2); background: rgba(255,255,255,0.04); }
-.scenario-card.active { border-color: rgba(199,226,247,0.35); background: rgba(199,226,247,0.04); }
-.scenario-name {
-  font-size: 10px;
-  font-weight: 700;
-  color: #c7e2f7;
-  font-family: 'JetBrains Mono', monospace;
-  margin-bottom: 3px;
-}
-.scenario-meta {
-  font-size: 8px;
-  color: #475569;
-  font-family: 'JetBrains Mono', monospace;
-}
-.thesis-box {
-  width: 100%;
-  min-height: 80px;
-  background: rgba(255,255,255,0.025);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 8px;
-  padding: 10px;
-  color: #94a3b8;
-  font-size: 10px;
-  font-family: 'JetBrains Mono', monospace;
-  resize: vertical;
-  outline: none;
-  line-height: 1.5;
-  transition: border-color 0.15s;
-}
-.thesis-box:focus { border-color: rgba(199,226,247,0.3); }
 
 /* ── Sim HUD ──────────────────────────────────────────── */
-.sim-hud {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  margin-bottom: 12px;
-}
-.sim-hud-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 90px;
-}
-.sim-hud-label {
-  font-size: 7px;
-  color: #334155;
-  letter-spacing: .07em;
-  font-family: 'JetBrains Mono', monospace;
-}
-.sim-hud-value {
-  font-size: 11px;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
-  color: #c7e2f7;
-}
 
 /* ── Toast animation ──────────────────────────────────── */
 @keyframes fadeSlideIn {

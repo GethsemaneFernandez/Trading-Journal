@@ -1,0 +1,106 @@
+/* ═══════════════════════════════════════════════
+   Basic Journal — Study Lab
+   Extracted from styles.css
+   Original line ranges: 488-491, 493-496, 849-852, 854-857, 1640-1647, 1649-1651, 1653-1655, 1782-1787, 1788-1795, 1796, 1797, 1798-1803, 1804-1808, 1812-1819, 1820-1825, 1826-1831, 1832-1837
+   Shared classes NOT extracted: .mock-banner (used in trade form)
+═══════════════════════════════════════════════ */
+
+body.dark .sim-card {
+  background: rgba(59, 130, 246, 0.04);
+  border: 1px solid rgba(59, 130, 246, 0.16);
+}
+
+body.dark .sim-stack {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body.light .sim-card {
+  background: rgba(199, 226, 247, 0.08);
+  border: 1px solid rgba(199, 226, 247, 0.25);
+}
+
+body.light .sim-stack {
+  background: rgba(255, 255, 255, 0.50);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+}
+
+.study-lab-hud {
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 12;
+  padding: 8px var(--pad);
+}
+
+body.dark .study-lab-hud {
+  background: rgba(139, 92, 246, 0.06);
+}
+
+body.light .study-lab-hud {
+  background: rgba(139, 92, 246, 0.04);
+}
+
+.scenario-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.scenario-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.scenario-card:hover { border-color: rgba(199,226,247,0.2); background: rgba(255,255,255,0.04); }
+.scenario-card.active { border-color: rgba(199,226,247,0.35); background: rgba(199,226,247,0.04); }
+
+.scenario-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: #c7e2f7;
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 3px;
+}
+
+.scenario-meta {
+  font-size: 8px;
+  color: #475569;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.sim-hud {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 12px;
+}
+
+.sim-hud-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 90px;
+}
+
+.sim-hud-label {
+  font-size: 7px;
+  color: #334155;
+  letter-spacing: .07em;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.sim-hud-value {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: #c7e2f7;
+}
