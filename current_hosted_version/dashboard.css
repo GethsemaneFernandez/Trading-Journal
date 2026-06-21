@@ -1,11 +1,10 @@
 /* ═══════════════════════════════════════════════
    Basic Journal — Dashboard Analytics
    Extracted from styles.css
-   Original line ranges: 129-138, 613-617, 619-621, 644-648, 992-996, 998-1000, 1022-1026, 1497-1514, 1581-1585, 1587-1590, 1593-1599, 1601-1607, 1609-1613, 1615-1618, 1620-1622, 1624-1626, 1756-1766, 1768-1771, 1909-1910, 1913-1917, 1919-1923, 1925-1930, 1932-1936, 1938, 1941-1946, 1948, 2056-2060, 2061-2069, 2070-2076, 2077-2082
+   Original line ranges: [129-138, 586-594, 614-618, 934-942, 961-965, 1371-1388, 1435-1444, 1447-1480, 1606-1621, 1708-1709, 1712-1737, 1740-1747, 1763-1789]
    Shared classes NOT extracted: .sec-hd (used in Study Lab), .lot-in (used in trade ledger), .glass (global UI component)
 ═══════════════════════════════════════════════ */
 
-body.dark {
   --pie-txt: #f1f5f9;
   --pie-txt-sub: rgba(241, 245, 249, 0.50);
   --pie-hole: rgba(5, 5, 5, 0.90);
@@ -16,7 +15,6 @@ body.light {
   --pie-txt-sub: rgba(15, 23, 42, 0.52);
   --pie-hole: rgba(240, 249, 255, 0.88);
 }
-
 body.dark .pie-legend {
   background: rgba(0, 0, 0, 0.32);
   border: 1px solid rgba(255, 255, 255, 0.07);
@@ -26,13 +24,11 @@ body.dark .pie-legend {
 body.dark .pie-legend-row:hover {
   background: rgba(255, 255, 255, 0.04);
 }
-
 body.dark .chart-cell {
   background: rgba(255, 255, 255, 0.015);
   border: var(--card-border);
   border-radius: var(--r-sm);
 }
-
 body.light .pie-legend {
   background: rgba(255, 255, 255, 0.40);
   border: 1px solid rgba(255, 255, 255, 0.65);
@@ -42,13 +38,11 @@ body.light .pie-legend {
 body.light .pie-legend-row:hover {
   background: rgba(255, 255, 255, 0.35);
 }
-
 body.light .chart-cell {
   background: rgba(255, 255, 255, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: var(--r-sm);
 }
-
 .pie-slice {
   transition: opacity .2s, filter .2s;
 }
@@ -67,7 +61,6 @@ body.light .chart-cell {
   cursor: default;
   transition: background .15s;
 }
-
 .analytics-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -78,7 +71,6 @@ body.light .chart-cell {
   padding: var(--pad);
   overflow: hidden;
 }
-
 .bar-chart-wrap {
   display: flex;
   align-items: flex-end;
@@ -105,15 +97,12 @@ body.light .chart-cell {
   height: 1px;
   margin-top: 4px;
 }
-
 body.dark .bar-chart-axis {
   background: rgba(255, 255, 255, .07);
 }
-
 body.light .bar-chart-axis {
   background: rgba(0, 0, 0, .08);
 }
-
 @keyframes chart-rise {
   from {
     transform: scaleY(0);
@@ -130,24 +119,20 @@ body.light .bar-chart-axis {
   animation: chart-rise .55s cubic-bezier(.34, 1.56, .64, 1) both;
   transform-origin: bottom;
 }
-
 .equity-curve-wrap { position: relative; width: 100%; }
 .equity-curve-wrap svg { display: block; }
-
 .heatmap-grid {
   display: flex;
   gap: 4px;
   overflow-x: auto;
   padding-bottom: 4px;
 }
-
 .heatmap-month {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
 }
-
 .heatmap-month-label {
   font-size: 6px;
   color: #334155;
@@ -155,16 +140,13 @@ body.light .bar-chart-axis {
   text-align: center;
   letter-spacing: .04em;
 }
-
 .heatmap-cell {
   width: 6px;
   height: 6px;
   border-radius: 1px;
   transition: opacity 0.2s;
 }
-
 .heatmap-cell:hover { opacity: 1 !important; transform: scale(1.4); }
-
 .asset-weight-track {
   height: 10px;
   border-radius: 5px;
@@ -172,15 +154,12 @@ body.light .bar-chart-axis {
   display: flex;
   background: rgba(255,255,255,0.04);
 }
-
 .asset-weight-segment { transition: width 0.4s ease; height: 100%; }
-
 .adv-metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   gap: 8px;
 }
-
 .adv-metric-card {
   background: rgba(255,255,255,0.025);
   border: 1px solid rgba(255,255,255,0.05);
@@ -190,7 +169,6 @@ body.light .bar-chart-axis {
   flex-direction: column;
   gap: 4px;
 }
-
 .adv-metric-label {
   font-size: 7px;
   color: #475569;
@@ -198,7 +176,6 @@ body.light .bar-chart-axis {
   text-transform: uppercase;
   font-family: 'JetBrains Mono', monospace;
 }
-
 .adv-metric-value {
   font-size: 13px;
   font-weight: 800;
