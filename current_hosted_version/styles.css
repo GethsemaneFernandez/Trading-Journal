@@ -462,18 +462,7 @@ body.dark .ghost:hover {
   color: rgba(255, 255, 255, 0.70);
 }
 
-body.dark .strat-btn {
-  background: transparent;
-  border: 1px dashed rgba(255, 255, 255, 0.11);
-  color: rgba(255, 255, 255, 0.28);
-}
 
-body.dark .strat-btn:hover,
-.strat-btn.on {
-  border-color: rgba(199, 226, 247, 0.40);
-  color: var(--emerald);
-  background: rgba(199, 226, 247, 0.06);
-}
 
 body.dark .drag-h {
   background: rgba(255, 255, 255, 0.06);
@@ -492,18 +481,8 @@ body.dark .drag-h:hover,
 
 
 
-body.dark .sk-row {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
 
-body.dark .sk-row:hover {
-  background: rgba(199, 226, 247, 0.04) !important;
-  cursor: pointer;
-}
 
-body.dark .audit-row {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
 
 body.dark .cmp-h {
   background: rgba(0, 0, 0, 0.40);
@@ -706,7 +685,6 @@ body.light .inset {
 }
 
 
-}
 
 body.light .inp {
   background: rgba(255, 255, 255, 0.95);
@@ -816,18 +794,7 @@ body.light .ghost:hover {
   color: #0f172a;
 }
 
-body.light .strat-btn {
-  background: rgba(255, 255, 255, 0.50);
-  border: 1px dashed rgba(0, 0, 0, 0.20);
-  color: rgba(15, 23, 42, 0.60);
-}
 
-body.light .strat-btn:hover,
-.strat-btn.on {
-  border-color: rgba(199, 226, 247, 0.50);
-  color: #0c4a6e;
-  background: rgba(199, 226, 247, 0.10);
-}
 
 body.light .drag-h {
   background: rgba(0, 0, 0, 0.15);
@@ -844,18 +811,8 @@ body.light .drag-h:hover,
 
 
 
-body.light .sk-row {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
-}
 
-body.light .sk-row:hover {
-  background: rgba(199, 226, 247, 0.08) !important;
-  cursor: pointer;
-}
 
-body.light .audit-row {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
-}
 
 body.light .cmp-h {
   background: rgba(255, 255, 255, 0.90);
@@ -1243,14 +1200,6 @@ textarea.inp {
   border-radius: 99px;
 }
 
-
-  border-radius: .75rem;
-  padding: 7px 11px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .fee-pill {
   border-radius: .5rem;
   padding: 6px 10px;
@@ -1274,19 +1223,6 @@ textarea.inp {
   transform: scale(0.92);
 }
 
-.strat-btn {
-  border-radius: var(--r-inp);
-  font-family: 'Inter', sans-serif;
-  font-size: var(--fz-xs);
-  font-weight: 500;
-  cursor: pointer;
-  padding: 6px 11px;
-  transition: all .18s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-}
 
 .dk-wrap {
   position: relative;
@@ -1749,7 +1685,6 @@ body.light .mock-banner {
 /* ── Performance Hub (Ledger Tab) ─────────────────────── */
 
 /* ── Study Lab ────────────────────────────────────────── */
-}
 
 /* ── Sim HUD ──────────────────────────────────────────── */
 

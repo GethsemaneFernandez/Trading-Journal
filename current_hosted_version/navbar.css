@@ -203,16 +203,3 @@ body.light .usd-toggle.on {
   cursor: wait;
   pointer-events: none;
 }
-
-body.dark .usd-toggle.on {
-  background: rgba(59, 130, 246, .22);
-  border-color: rgba(59, 130, 246, .48);
-  color: #60a5fa;
-  box-shadow: 0 0 12px rgba(59, 130, 246, .22);
-}
-
-body.light .usd-toggle.on {
-  background: rgba(59, 130, 246, .14);
-  border-color: rgba(59, 130, 246, .35);
-  color: #1d4ed8;
-}
