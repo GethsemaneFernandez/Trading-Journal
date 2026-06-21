@@ -48,6 +48,26 @@
     var _ama = useState(false); var isAnalyticsMaximized = _ama[0]; var setAnalyticsMaximized = _ama[1];
     var _ito = useState(false); var isTradeOpen = _ito[0]; var setTradeOpen = _ito[1];
 
+    // Inject chat head CSS keyframes once on mount
+    useEffect(function() {
+      if (document.getElementById('chat-head-styles')) return;
+      var style = document.createElement('style');
+      style.id = 'chat-head-styles';
+      style.textContent = [
+        '@keyframes chatHeadPulse {',
+        '  0%,100% { box-shadow: 0 4px 24px rgba(59,130,246,0.5), 0 0 0 0 rgba(59,130,246,0.4); }',
+        '  50% { box-shadow: 0 4px 24px rgba(59,130,246,0.5), 0 0 0 8px rgba(59,130,246,0); }',
+        '}',
+        '@keyframes panelSlideIn {',
+        '  from { opacity: 0; transform: translateY(12px) scale(0.98); }',
+        '  to   { opacity: 1; transform: translateY(0)    scale(1); }',
+        '}',
+        '.chat-head-bubble { animation: chatHeadPulse 2s infinite; }',
+        '.trade-panel-open { animation: panelSlideIn 0.25s ease forwards; }'
+      ].join('\n');
+      document.head.appendChild(style);
+    }, []);
+
     var cashTrailData = useMemo(function () {
       var allRaw = [];
       funding.forEach(function (f) {
@@ -294,35 +314,73 @@
               )
         )
       ),
-      /* Floating Chat Head Button */
-      h('button', { onMouseDown: function (e) { e.stopPropagation(); setTradeOpen(function (v) { return !v; }); },
-        className: 'chat-head' + (isTradeOpen ? ' active' : ''),
-        style: { position: 'absolute', bottom: 25, left: 25, zIndex: 1000 } },
-        h('div', { style: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 } },
-          h('span', { style: { fontSize: 8, fontWeight: 800, letterSpacing: '.05em' } }, "TRADE"),
-          h('div', { style: { width: 12, height: 2, background: 'currentColor', borderRadius: 1 } })
-        )
+      /* ── Chat Head Bubble ── */
+      h('button', {
+        onMouseDown: function(e) { e.stopPropagation(); setTradeOpen(function(v) { return !v; }); },
+        className: isTradeOpen ? 'chat-head active' : 'chat-head chat-head-bubble',
+        style: {
+          position: 'fixed', bottom: 28, right: 28, zIndex: 1000,
+          width: 56, height: 56, borderRadius: '50%', border: 'none',
+          background: 'radial-gradient(circle at 35% 35%, #1e40af, #3b82f6)',
+          cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transition: 'transform 0.2s, box-shadow 0.2s',
+          boxShadow: isTradeOpen ? '0 4px 20px rgba(59,130,246,0.6)' : undefined,
+          transform: 'scale(1)'
+        },
+        onMouseEnter: function(e) { e.currentTarget.style.transform = 'scale(1.08)'; },
+        onMouseLeave: function(e) { e.currentTarget.style.transform = 'scale(1)'; }
+      },
+        h('span', { style: { fontSize: isTradeOpen ? 18 : 9, fontWeight: 800, color: '#fff', letterSpacing: isTradeOpen ? 0 : '.06em', lineHeight: 1 } },
+          isTradeOpen ? '✕' : 'TRADE')
       ),
-      /* Floating Trade Panel */
-      isTradeOpen && h('div', { className: "floating-panel scroll", style: {
-        position: 'absolute', bottom: 85, left: 25,
-        width: 380, maxHeight: 'calc(100% - 120px)',
-        zIndex: 999,
-        background: '#0d1117',
-        border: '1px solid rgba(199,226,247,0.1)',
-        borderRadius: '14px',
-        boxShadow: '0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04)',
-        display: 'flex', flexDirection: 'column',
-        overflow: 'hidden',
-      } },
-        h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px 8px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 } },
+      /* ── Expanded Terminal Panel ── */
+      isTradeOpen && h('div', {
+        className: 'trade-panel-open',
+        style: {
+          position: 'fixed', bottom: 96, right: 28,
+          width: 420, maxHeight: 'calc(100vh - 130px)',
+          zIndex: 999,
+          background: '#0a0f1a',
+          border: '1px solid rgba(59,130,246,0.25)',
+          borderRadius: 18,
+          boxShadow: '0 24px 80px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.04)',
+          display: 'flex', flexDirection: 'column',
+          overflow: 'hidden'
+        }
+      },
+        /* BUY/SELL accent bar — blue default (TradeForm owns side state internally) */
+        h('div', { style: { height: 3, background: 'linear-gradient(90deg, #1e40af, #3b82f6)', flexShrink: 0 } }),
+        /* Header */
+        h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px 10px', borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 } },
           h('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
-            h('div', { style: { width: 6, height: 6, borderRadius: '50%', background: '#c7e2f7', boxShadow: '0 0 8px #c7e2f7' } }),
-            h('span', { className: "sec-hd tm", style: { fontSize: 11, letterSpacing: '.06em' } }, "EXECUTION TERMINAL")
+            h('div', { style: { width: 7, height: 7, borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 8px #3b82f6, 0 0 0 3px rgba(59,130,246,0.2)', animation: 'chatHeadPulse 2s infinite' } }),
+            h('span', { className: 'sec-hd tm', style: { fontSize: 11, letterSpacing: '.08em', color: '#c7e2f7' } }, 'EXECUTION TERMINAL')
           ),
-          h('button', { onMouseDown: function (e) { e.stopPropagation(); setTradeOpen(false); }, className: "win-btn close", style: { width: 22, height: 22 } }, h(C.IcX))
+          h('button', {
+            onMouseDown: function(e) { e.stopPropagation(); setTradeOpen(false); },
+            className: 'win-btn close', style: { width: 24, height: 24, borderRadius: '50%' }
+          }, h(C.IcX))
         ),
-        h('div', { style: { flex: 1, overflowY: 'auto', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 12 } },
+        /* Body */
+        h('div', { style: { flex: 1, overflowY: 'auto', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 14 } },
+          /* Market price context row */
+          h('div', { style: { display: 'flex', alignItems: 'center', gap: 12, padding: '6px 10px', background: 'rgba(59,130,246,0.06)', borderRadius: 8, border: '1px solid rgba(59,130,246,0.12)' } },
+            h('span', { style: { fontSize: 8, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.07em', fontFamily: 'Inter,sans-serif' } }, 'PRICE'),
+            h('span', { className: 'mono', style: { fontSize: 9, color: '#60a5fa', fontWeight: 700 } },
+              (function() {
+                var tks = Object.keys(mktPx);
+                if (!tks.length) return 'MKT: —';
+                var active = prefill && prefill.ticker ? prefill.ticker : (enriched.length ? enriched[0].ticker : null);
+                var px = active && mktPx[active] ? mktPx[active] : null;
+                if (!px) return 'MKT: —';
+                var ex = enriched.find(function(p){ return p.ticker === active; });
+                var sym = ex ? S(ex.exchange) : '₱';
+                return 'MKT: ' + sym + f4(px);
+              })()
+            ),
+            h('span', { style: { fontSize: 8, color: '#334155', marginLeft: 'auto' } }, isMock ? '[ MOCK MODE ]' : '[ LIVE ]')
+          ),
           h(C.TradeForm, {
             enriched: enriched, psiFee: psiFee, fxRate: fxRate,
             tickerLists: tickerLists, mktPx: mktPx,
@@ -330,7 +388,7 @@
             isDark: isDark, priv: priv, isMock: isMock,
             prefill: prefill, port: port
           }),
-          h('div', { style: { background: 'rgba(255,255,255,0.02)', borderRadius: 8, padding: '10px 12px', border: '1px solid rgba(255,255,255,0.05)', flexShrink: 0 } },
+          h('div', { style: { background: 'rgba(255,255,255,0.02)', borderRadius: 10, padding: '10px 12px', border: '1px solid rgba(255,255,255,0.05)', flexShrink: 0 } },
             h(C.RiskCard, { enriched: enriched, totalMVPHP: totalMVPHP, totalEqPHP: totalEqPHP, cashPHP: (port.cashPHP || 0), isDark: isDark })
           )
         )
@@ -530,6 +588,7 @@
               if (data.funding) { setFunding(data.funding); localStorage.setItem(E.K.f, JSON.stringify(data.funding)); }
               if (data.tickerLists) { setTickerLists(data.tickerLists); localStorage.setItem(E.K.tk, JSON.stringify(data.tickerLists)); }
               if (data.scenarios) { setSavedScenarios(data.scenarios); localStorage.setItem(E.K.ss, JSON.stringify(data.scenarios)); }
+              if (data.trade_meta && typeof data.trade_meta === 'object') { localStorage.setItem('bj_trade_meta', JSON.stringify(data.trade_meta)); }
               localStorage.setItem(E.K.ok, '1');
               addToast('Data Imported Successfully', 'ok');
             }
@@ -593,7 +652,7 @@
         h('div', { style: { marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5 } },
           h('div', { className: "blink", style: { width: 5, height: 5, borderRadius: '50%', background: '#c7e2f7', boxShadow: '0 0 5px #c7e2f7' } }),
           h('span', { className: "mono tf", style: { fontSize: 7.5, letterSpacing: '.05em' } }, today),
-          h('button', { id: "export-btn", onClick: function () { var d = { trades: trades, funding: funding, scenarios: savedScenarios, tickerLists: tickerLists }; var blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' }); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'BasicJournal_Backup_' + new Date().toISOString().slice(0, 10) + '.json'; a.click(); addToast('Portfolio Exported', 'ok'); }, className: "ghost tm", style: { padding: '2px 8px', borderRadius: '.4rem', cursor: 'pointer', fontFamily: 'Inter,sans-serif', fontSize: 9, fontWeight: 500, transition: 'all .15s', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)' } }, "💾 Export JSON"),
+          h('button', { id: "export-btn", onClick: function () { var tradeMeta = {}; try { tradeMeta = JSON.parse(localStorage.getItem('bj_trade_meta') || '{}'); } catch(e) {} var d = { trades: trades, funding: funding, scenarios: savedScenarios, tickerLists: tickerLists, trade_meta: tradeMeta }; var blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' }); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'BasicJournal_Backup_' + new Date().toISOString().slice(0, 10) + '.json'; a.click(); addToast('Portfolio Exported', 'ok'); }, className: "ghost tm", style: { padding: '2px 8px', borderRadius: '.4rem', cursor: 'pointer', fontFamily: 'Inter,sans-serif', fontSize: 9, fontWeight: 500, transition: 'all .15s', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)' } }, "💾 Export JSON"),
           h('button', { id: "import-btn", onClick: onImportJSON, className: "ghost tm", style: { padding: '2px 8px', borderRadius: '.4rem', cursor: 'pointer', fontFamily: 'Inter,sans-serif', fontSize: 9, fontWeight: 500, transition: 'all .15s', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)' } }, "📂 Import JSON"),
           h('button', { id: "fx-btn", onClick: function () { setShowFx(true); }, style: { fontFamily: 'JetBrains Mono,monospace', fontSize: 8, padding: '2px 7px', borderRadius: '.4rem', cursor: 'pointer', transition: 'all .18s', background: isDark ? 'rgba(16,185,129,.09)' : 'rgba(16,185,129,.07)', border: isDark ? '1px solid rgba(16,185,129,.22)' : '1px solid rgba(16,185,129,.18)', color: isDark ? '#6ee7b7' : '#065f46' } }, "$1=₱" + fxRate.toFixed(0)),
           h('div', { className: "sc-pill" }, [['compact', 'Cmpct'], ['default', 'Dflt'], ['wide', 'Wide']].map(function (s) { return h('button', { key: s[0], onClick: function () { setScale(s[0]); }, className: 'sc-opt' + (scale === s[0] ? ' on' : '') }, s[1]); })),
