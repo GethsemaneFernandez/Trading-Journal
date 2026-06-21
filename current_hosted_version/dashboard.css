@@ -1,0 +1,139 @@
+/* ═══════════════════════════════════════════════
+   Basic Journal — Dashboard Analytics
+   Extracted from styles.css
+   Original line ranges: 593-597, 918-922, 1371-1375, 1377-1381, 1383-1389, 1391-1397, 1399-1403, 1405-1408, 1410-1412, 1414-1416, 1644-1645, 1648-1653, 1654-1659, 1660-1666, 1667-1672, 1673, 1676-1682, 1683, 1698-1702, 1703-1711, 1712-1718, 1719-1724
+   Shared classes NOT extracted: .glass, .sec-hd, .lot-in, .pie-slice, .pie-legend, .pie-txt, .pie-hole (used globally or shared with Ledger)
+═══════════════════════════════════════════════ */
+
+body.dark .chart-cell {
+  background: rgba(255, 255, 255, 0.015);
+  border: var(--card-border);
+  border-radius: var(--r-sm);
+}
+
+body.light .chart-cell {
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: var(--r-sm);
+}
+
+.analytics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+}
+
+.chart-cell {
+  padding: var(--pad);
+  overflow: hidden;
+}
+
+.bar-chart-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 64px;
+  padding: 0 2px;
+}
+
+.bar-chart-bar {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  min-width: 6px;
+  opacity: .78;
+  transition: opacity .2s, transform .15s;
+}
+
+.bar-chart-bar:hover {
+  opacity: 1;
+  transform: scaleY(1.04);
+  transform-origin: bottom;
+}
+
+.bar-chart-axis {
+  height: 1px;
+  margin-top: 4px;
+}
+
+body.dark .bar-chart-axis {
+  background: rgba(255, 255, 255, .07);
+}
+
+body.light .bar-chart-axis {
+  background: rgba(0, 0, 0, .08);
+}
+
+.equity-curve-wrap { position: relative; width: 100%; }
+.equity-curve-wrap svg { display: block; }
+
+.heatmap-grid {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.heatmap-month {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.heatmap-month-label {
+  font-size: 6px;
+  color: #334155;
+  font-family: 'JetBrains Mono', monospace;
+  text-align: center;
+  letter-spacing: .04em;
+}
+
+.heatmap-cell {
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  transition: opacity 0.2s;
+}
+
+.heatmap-cell:hover { opacity: 1 !important; transform: scale(1.4); }
+
+.asset-weight-track {
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+  background: rgba(255,255,255,0.04);
+}
+
+.asset-weight-segment { transition: width 0.4s ease; height: 100%; }
+
+.adv-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.adv-metric-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.adv-metric-label {
+  font-size: 7px;
+  color: #475569;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.adv-metric-value {
+  font-size: 13px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  color: #94a3b8;
+}
