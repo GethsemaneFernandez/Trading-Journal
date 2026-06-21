@@ -462,18 +462,7 @@ body.dark .ghost:hover {
   color: rgba(255, 255, 255, 0.70);
 }
 
-body.dark .strat-btn {
-  background: transparent;
-  border: 1px dashed rgba(255, 255, 255, 0.11);
-  color: rgba(255, 255, 255, 0.28);
-}
 
-body.dark .strat-btn:hover,
-.strat-btn.on {
-  border-color: rgba(199, 226, 247, 0.40);
-  color: var(--emerald);
-  background: rgba(199, 226, 247, 0.06);
-}
 
 body.dark .drag-h {
   background: rgba(255, 255, 255, 0.06);
@@ -492,18 +481,8 @@ body.dark .drag-h:hover,
 
 
 
-body.dark .sk-row {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
 
-body.dark .sk-row:hover {
-  background: rgba(199, 226, 247, 0.04) !important;
-  cursor: pointer;
-}
 
-body.dark .audit-row {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
 
 body.dark .cmp-h {
   background: rgba(0, 0, 0, 0.40);
@@ -611,11 +590,6 @@ body.dark .rcv-track {
 }
 
 /* V1.5.0: Analytics chart row cells */
-body.dark .chart-cell {
-  background: rgba(255, 255, 255, 0.015);
-  border: var(--card-border);
-  border-radius: var(--r-sm);
-}
 
 /* V1.5.0: HUD USD badge */
 body.dark .hud-usd-badge {
@@ -706,7 +680,6 @@ body.light .inset {
 }
 
 
-}
 
 body.light .inp {
   background: rgba(255, 255, 255, 0.95);
@@ -816,18 +789,7 @@ body.light .ghost:hover {
   color: #0f172a;
 }
 
-body.light .strat-btn {
-  background: rgba(255, 255, 255, 0.50);
-  border: 1px dashed rgba(0, 0, 0, 0.20);
-  color: rgba(15, 23, 42, 0.60);
-}
 
-body.light .strat-btn:hover,
-.strat-btn.on {
-  border-color: rgba(199, 226, 247, 0.50);
-  color: #0c4a6e;
-  background: rgba(199, 226, 247, 0.10);
-}
 
 body.light .drag-h {
   background: rgba(0, 0, 0, 0.15);
@@ -844,18 +806,8 @@ body.light .drag-h:hover,
 
 
 
-body.light .sk-row {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
-}
 
-body.light .sk-row:hover {
-  background: rgba(199, 226, 247, 0.08) !important;
-  cursor: pointer;
-}
 
-body.light .audit-row {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
-}
 
 body.light .cmp-h {
   background: rgba(255, 255, 255, 0.90);
@@ -958,11 +910,6 @@ body.light .rcv-track {
   border-radius: 99px;
 }
 
-body.light .chart-cell {
-  background: rgba(255, 255, 255, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  border-radius: var(--r-sm);
-}
 
 body.light .hud-usd-badge {
   background: rgba(59, 130, 246, 0.08);
@@ -1243,14 +1190,6 @@ textarea.inp {
   border-radius: 99px;
 }
 
-
-  border-radius: .75rem;
-  padding: 7px 11px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .fee-pill {
   border-radius: .5rem;
   padding: 6px 10px;
@@ -1274,19 +1213,6 @@ textarea.inp {
   transform: scale(0.92);
 }
 
-.strat-btn {
-  border-radius: var(--r-inp);
-  font-family: 'Inter', sans-serif;
-  font-size: var(--fz-xs);
-  font-weight: 500;
-  cursor: pointer;
-  padding: 6px 11px;
-  transition: all .18s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-}
 
 .dk-wrap {
   position: relative;
@@ -1432,52 +1358,13 @@ body.dark .sov-ticker {
 
 
 /* ── V1.5.0: Triple-Chart Row ── */
-.analytics-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-}
-
-.chart-cell {
-  padding: var(--pad);
-  overflow: hidden;
-}
 
 /* ── Bar chart (daily trend) ── */
-.bar-chart-wrap {
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  height: 64px;
-  padding: 0 2px;
-}
 
-.bar-chart-bar {
-  flex: 1;
-  border-radius: 3px 3px 0 0;
-  min-width: 6px;
-  opacity: .78;
-  transition: opacity .2s, transform .15s;
-}
 
-.bar-chart-bar:hover {
-  opacity: 1;
-  transform: scaleY(1.04);
-  transform-origin: bottom;
-}
 
-.bar-chart-axis {
-  height: 1px;
-  margin-top: 4px;
-}
 
-body.dark .bar-chart-axis {
-  background: rgba(255, 255, 255, .07);
-}
 
-body.light .bar-chart-axis {
-  background: rgba(0, 0, 0, .08);
-}
 
 /* ── Refresh button ── */
 
@@ -1705,51 +1592,14 @@ body.light .mock-banner {
 
 /* ── HUD Bar ──────────────────────────────────────────── */
 /* ── Equity Curve ─────────────────────────────────────── */
-.equity-curve-wrap { position: relative; width: 100%; }
-.equity-curve-wrap svg { display: block; }
 
 /* ── P&L Heatmap ──────────────────────────────────────── */
-.heatmap-grid {
-  display: flex;
-  gap: 4px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-.heatmap-month {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-.heatmap-month-label {
-  font-size: 6px;
-  color: #334155;
-  font-family: 'JetBrains Mono', monospace;
-  text-align: center;
-  letter-spacing: .04em;
-}
-.heatmap-cell {
-  width: 6px;
-  height: 6px;
-  border-radius: 1px;
-  transition: opacity 0.2s;
-}
-.heatmap-cell:hover { opacity: 1 !important; transform: scale(1.4); }
 
 /* ── Asset Weight Bar ─────────────────────────────────── */
-.asset-weight-track {
-  height: 10px;
-  border-radius: 5px;
-  overflow: hidden;
-  display: flex;
-  background: rgba(255,255,255,0.04);
-}
-.asset-weight-segment { transition: width 0.4s ease; height: 100%; }
 
 /* ── Performance Hub (Ledger Tab) ─────────────────────── */
 
 /* ── Study Lab ────────────────────────────────────────── */
-}
 
 /* ── Sim HUD ──────────────────────────────────────────── */
 
@@ -1760,30 +1610,3 @@ body.light .mock-banner {
 }
 
 /* ── Advanced Metrics Panel ───────────────────────────── */
-.adv-metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 8px;
-}
-.adv-metric-card {
-  background: rgba(255,255,255,0.025);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 8px;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.adv-metric-label {
-  font-size: 7px;
-  color: #475569;
-  letter-spacing: .07em;
-  text-transform: uppercase;
-  font-family: 'JetBrains Mono', monospace;
-}
-.adv-metric-value {
-  font-size: 13px;
-  font-weight: 800;
-  font-family: 'JetBrains Mono', monospace;
-  color: #94a3b8;
-}
