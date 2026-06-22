@@ -48,6 +48,65 @@
     var _ama = useState(false); var isAnalyticsMaximized = _ama[0]; var setAnalyticsMaximized = _ama[1];
     var _ito = useState(false); var isTradeOpen = _ito[0]; var setTradeOpen = _ito[1];
 
+    var _pw = useState(function() { return parseInt(localStorage.getItem('bj_panel_w') || '420'); });
+    var panelW = _pw[0]; var setPanelW = _pw[1];
+    var _ph = useState(function() { return parseInt(localStorage.getItem('bj_panel_h') || '600'); });
+    var panelH = _ph[0]; var setPanelH = _ph[1];
+
+    var _fm = useState(false); var isForexMode = _fm[0]; var setForexMode = _fm[1];
+    var _fsl = useState(''); var fxSL = _fsl[0]; var setFxSL = _fsl[1];
+    var _ftp = useState(''); var fxTP = _ftp[0]; var setFxTP = _ftp[1];
+    var _fxc = useState(null); var fxCalc = _fxc[0]; var setFxCalc = _fxc[1];
+
+    var dwRef = useRef(panelW); var dhRef = useRef(panelH);
+    useEffect(function() { dwRef.current = panelW; dhRef.current = panelH; }, [panelW, panelH]);
+
+    var handleResizeStart = function(e) {
+      e.preventDefault();
+      var startX = e.clientX; var startY = e.clientY;
+      var startW = dwRef.current; var startH = dhRef.current;
+      var lastW = startW; var lastH = startH;
+      function onMove(me) {
+        lastW = Math.min(560, Math.max(320, startW + (startX - me.clientX)));
+        lastH = Math.min(window.innerHeight - 130, Math.max(400, startH + (startY - me.clientY)));
+        setPanelW(lastW); setPanelH(lastH);
+      }
+      function onUp() {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        localStorage.setItem('bj_panel_w', lastW);
+        localStorage.setItem('bj_panel_h', lastH);
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    };
+
+    function updateFxCalc() {
+      var entry = prefill ? parseFloat(prefill.mp || prefill.avgNative || 0) : 0;
+      var sl = parseFloat(fxSL); var tp = parseFloat(fxTP);
+      if (!entry || !sl || !tp) { setFxCalc(null); return; }
+      var slPips = Math.abs(entry - sl) * 10000;
+      var tpPips = Math.abs(tp - entry) * 10000;
+      var rr = slPips > 0 ? (tpPips / slPips).toFixed(2) : '—';
+      var rrNum = parseFloat(rr);
+      setFxCalc({
+        slPips: slPips.toFixed(1),
+        tpPips: tpPips.toFixed(1),
+        rr: isNaN(rrNum) ? '—' : '1:' + rr,
+        rrColor: rrNum >= 2 ? '#10b981' : rrNum >= 1 ? '#f59e0b' : '#f43f5e'
+      });
+    }
+
+    useEffect(function() {
+      if (prefill && prefill.exchange && E.isForex(prefill.exchange)) {
+        setForexMode(true);
+      } else if (prefill && prefill.exchange) {
+        setForexMode(false);
+      }
+    }, [prefill]);
+
+    useEffect(function() { updateFxCalc(); }, [prefill, fxSL, fxTP]);
+
     // Inject chat head CSS keyframes once on mount
     useEffect(function() {
       if (document.getElementById('chat-head-styles')) return;
@@ -339,7 +398,7 @@
         className: 'trade-panel-open',
         style: {
           position: 'fixed', bottom: 96, right: 28,
-          width: 420, maxHeight: 'calc(100vh - 130px)',
+          width: panelW, height: panelH, maxHeight: 'calc(100vh - 130px)',
           zIndex: 999,
           background: '#0a0f1a',
           border: '1px solid rgba(59,130,246,0.25)',
@@ -349,8 +408,17 @@
           overflow: 'hidden'
         }
       },
-        /* BUY/SELL accent bar — blue default (TradeForm owns side state internally) */
-        h('div', { style: { height: 3, background: 'linear-gradient(90deg, #1e40af, #3b82f6)', flexShrink: 0 } }),
+        /* BUY/SELL accent bar — reactive to isForexMode */
+        h('div', {
+          style: {
+            height: 3,
+            background: isForexMode
+              ? 'linear-gradient(90deg, #065f46, #10b981)'
+              : 'linear-gradient(90deg, #1e40af, #3b82f6)',
+            flexShrink: 0,
+            transition: 'background 0.3s ease'
+          }
+        }),
         /* Header */
         h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px 10px', borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 } },
           h('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
@@ -379,7 +447,46 @@
                 return 'MKT: ' + sym + f4(px);
               })()
             ),
+            h('span', {
+              style: {
+                fontSize: 7.5, color: '#475569',
+                background: 'rgba(255,255,255,0.04)',
+                padding: '1px 5px', borderRadius: 4,
+                fontFamily: 'JetBrains Mono, monospace',
+                marginLeft: 4
+              }
+            }, 'AUTO'),
             h('span', { style: { fontSize: 8, color: '#334155', marginLeft: 'auto' } }, isMock ? '[ MOCK MODE ]' : '[ LIVE ]')
+          ),
+          /* Mode toggle row */
+          h('div', {
+            style: {
+              display: 'flex', gap: 4,
+              padding: '4px 0'
+            }
+          },
+            h('button', {
+              onClick: function() { setForexMode(false); },
+              style: {
+                flex: 1, padding: '5px 0', fontSize: 8.5,
+                fontFamily: 'Inter, sans-serif', fontWeight: 600,
+                borderRadius: 6, border: 'none', cursor: 'pointer',
+                background: !isForexMode ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.04)',
+                color: !isForexMode ? '#60a5fa' : '#475569',
+                transition: 'all 0.15s'
+              }
+            }, 'PSE / STOCKS'),
+            h('button', {
+              onClick: function() { setForexMode(true); },
+              style: {
+                flex: 1, padding: '5px 0', fontSize: 8.5,
+                fontFamily: 'Inter, sans-serif', fontWeight: 600,
+                borderRadius: 6, border: 'none', cursor: 'pointer',
+                background: isForexMode ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.04)',
+                color: isForexMode ? '#10b981' : '#475569',
+                transition: 'all 0.15s'
+              }
+            }, 'FOREX')
           ),
           h(C.TradeForm, {
             enriched: enriched, psiFee: psiFee, fxRate: fxRate,
@@ -388,10 +495,62 @@
             isDark: isDark, priv: priv, isMock: isMock,
             prefill: prefill, port: port
           }),
+          /* Forex Additional Info Panel */
+          isForexMode && h('div', {
+            style: {
+              background: 'rgba(16,185,129,0.04)',
+              border: '1px solid rgba(16,185,129,0.15)',
+              borderRadius: 10, padding: '10px 12px',
+              display: 'flex', flexDirection: 'column', gap: 8
+            }
+          },
+            h('div', { style: { fontSize: 8, color: '#10b981', fontFamily: 'Inter,sans-serif', fontWeight: 700, letterSpacing: '.07em', textTransform: 'uppercase', marginBottom: 2 } }, 'Forex Context'),
+            h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } },
+              h('div', null,
+                h('div', { style: { fontSize: 7.5, color: '#475569', marginBottom: 3, fontFamily: 'Inter,sans-serif' } }, 'STOP LOSS'),
+                h('input', {
+                  type: 'number', step: '0.00001', placeholder: '0.00000',
+                  value: fxSL, onChange: function(e) { setFxSL(e.target.value); updateFxCalc(); },
+                  style: { width: '100%', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, padding: '6px 8px', background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.2)', borderRadius: 6, color: '#f43f5e', outline: 'none' }
+                })
+              ),
+              h('div', null,
+                h('div', { style: { fontSize: 7.5, color: '#475569', marginBottom: 3, fontFamily: 'Inter,sans-serif' } }, 'TAKE PROFIT'),
+                h('input', {
+                  type: 'number', step: '0.00001', placeholder: '0.00000',
+                  value: fxTP, onChange: function(e) { setFxTP(e.target.value); updateFxCalc(); },
+                  style: { width: '100%', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, padding: '6px 8px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 6, color: '#10b981', outline: 'none' }
+                })
+              )
+            ),
+            fxCalc && h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, paddingTop: 6, borderTop: '1px solid rgba(255,255,255,0.05)' } },
+              [
+                ['SL PIPS', fxCalc.slPips, '#f43f5e'],
+                ['TP PIPS', fxCalc.tpPips, '#10b981'],
+                ['R:R', fxCalc.rr, fxCalc.rrColor]
+              ].map(function(item) {
+                return h('div', { key: item[0] },
+                  h('div', { style: { fontSize: 7, color: '#475569', fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: '.06em' } }, item[0]),
+                  h('div', { style: { fontSize: 12, fontWeight: 700, color: item[2], fontFamily: 'JetBrains Mono, monospace', marginTop: 2 } }, item[1])
+                );
+              })
+            )
+          ),
           h('div', { style: { background: 'rgba(255,255,255,0.02)', borderRadius: 10, padding: '10px 12px', border: '1px solid rgba(255,255,255,0.05)', flexShrink: 0 } },
             h(C.RiskCard, { enriched: enriched, totalMVPHP: totalMVPHP, totalEqPHP: totalEqPHP, cashPHP: (port.cashPHP || 0), isDark: isDark })
           )
-        )
+        ),
+        /* Resize handle */
+        h('div', {
+          style: {
+            position: 'absolute', bottom: 0, right: 0,
+            width: 16, height: 16, cursor: 'nwse-resize',
+            background: 'linear-gradient(135deg, transparent 50%, rgba(59,130,246,0.4) 50%)',
+            borderBottomRightRadius: 18,
+            zIndex: 10
+          },
+          onMouseDown: handleResizeStart
+        })
       )
     );
   }
