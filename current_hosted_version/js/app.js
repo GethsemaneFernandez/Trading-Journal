@@ -580,14 +580,17 @@
         ),
         /* Resize handle */
         h('div', {
+          onMouseDown: handleResizeStart,
           style: {
-            position: 'absolute', bottom: 0, right: 0,
-            width: 16, height: 16, cursor: 'nwse-resize',
-            background: 'linear-gradient(135deg, transparent 50%, rgba(59,130,246,0.4) 50%)',
+            position: 'absolute',
+            bottom: 0, right: 0,
+            width: 18, height: 18,
+            cursor: 'nwse-resize',
+            zIndex: 10,
+            background: 'linear-gradient(135deg, transparent 40%, rgba(59,130,246,0.35) 40%)',
             borderBottomRightRadius: 18,
-            zIndex: 10
-          },
-          onMouseDown: handleResizeStart
+            userSelect: 'none'
+          }
         })
       )
     );
