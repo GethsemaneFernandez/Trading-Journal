@@ -48,6 +48,17 @@
     var _ama = useState(false); var isAnalyticsMaximized = _ama[0]; var setAnalyticsMaximized = _ama[1];
     var _ito = useState(false); var isTradeOpen = _ito[0]; var setTradeOpen = _ito[1];
 
+    var _pos = useState(function() {
+      try {
+        var p = JSON.parse(localStorage.getItem('bj_panel_pos') || '{}');
+        return { x: p.x || 28, y: p.y || 28 };
+      } catch(e) { return { x: 28, y: 28 }; }
+    });
+    var bubblePos = _pos[0]; var setBubblePos = _pos[1];
+    var isDragging = useRef(false);
+    var dragStart = useRef({ mx: 0, my: 0, bx: 0, by: 0 });
+    var hasDragged = useRef(false);
+
     var _pw = useState(function() { return parseInt(localStorage.getItem('bj_panel_w') || '420'); });
     var panelW = _pw[0]; var setPanelW = _pw[1];
     var _ph = useState(function() { return parseInt(localStorage.getItem('bj_panel_h') || '600'); });
@@ -375,10 +386,37 @@
       ),
       /* ── Chat Head Bubble ── */
       h('button', {
-        onMouseDown: function(e) { e.stopPropagation(); setTradeOpen(function(v) { return !v; }); },
+        onMouseDown: function(e) {
+          e.stopPropagation();
+          isDragging.current = true;
+          hasDragged.current = false;
+          dragStart.current = { mx: e.clientX, my: e.clientY, bx: bubblePos.x, by: bubblePos.y };
+          var currentPos = { x: bubblePos.x, y: bubblePos.y };
+          function onMove(me) {
+            var dx = Math.abs(me.clientX - dragStart.current.mx);
+            var dy = Math.abs(me.clientY - dragStart.current.my);
+            if (dx > 4 || dy > 4) hasDragged.current = true;
+            var newX = Math.max(8, Math.min(window.innerWidth - 64, dragStart.current.bx - (me.clientX - dragStart.current.mx)));
+            var newY = Math.max(8, Math.min(window.innerHeight - 64, dragStart.current.by - (me.clientY - dragStart.current.my)));
+            currentPos = { x: newX, y: newY };
+            setBubblePos(currentPos);
+          }
+          function onUp() {
+            isDragging.current = false;
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+            localStorage.setItem('bj_panel_pos', JSON.stringify(currentPos));
+            if (!hasDragged.current) { setTradeOpen(function(v) { return !v; }); }
+          }
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', onUp);
+        },
         className: isTradeOpen ? 'chat-head active' : 'chat-head chat-head-bubble',
         style: {
-          position: 'fixed', bottom: 28, right: 28, zIndex: 1000,
+          position: 'fixed',
+          bottom: bubblePos.y,
+          right: bubblePos.x,
+          zIndex: 1000,
           width: 56, height: 56, borderRadius: '50%', border: 'none',
           background: 'radial-gradient(circle at 35% 35%, #1e40af, #3b82f6)',
           cursor: 'pointer',
@@ -397,7 +435,7 @@
       isTradeOpen && h('div', {
         className: 'trade-panel-open',
         style: {
-          position: 'fixed', bottom: 96, right: 28,
+          position: 'fixed', bottom: bubblePos.y + 68, right: bubblePos.x,
           width: panelW, height: panelH, maxHeight: 'calc(100vh - 130px)',
           zIndex: 999,
           background: '#0a0f1a',
